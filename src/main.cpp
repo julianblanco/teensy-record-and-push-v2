@@ -36,7 +36,7 @@ AudioControlCS42448 cs42448_1; //xy=418,471
 #define FILENAME_FORMAT_4 "chan4_rawdata-%d.raw"
 #define FILENAME_FORMAT_5 "chan5_rawdata-%d.raw"
 #define FILENAME_FORMAT_6 "chan6_rawdata-%d.raw"
-
+int resetCounter = 0;
 int filesizemax = 10000;
 #define FILENAME_LENGTH 32
 char filename1[FILENAME_LENGTH];
@@ -682,10 +682,6 @@ void loop()
       Serial.println("Changing Directory: ../");
       g_sd_controller.chdir("/");
       startFlag = 0;
-
-      fnet_release();
-      enableEthernet();
-        
       timeElapsedFTP = millis();
       while (timeElapsedFTP < (recordingLength + timeStartFTP))
       {
@@ -693,6 +689,11 @@ void loop()
         digitalWrite(DEBUG_LED, LOW);
         timeElapsedFTP = millis();
       }
+      if (resetCounter > 10)
+      {
+      delay(10000);
+      }
+      resetCounter++;
     }
     else
     {
