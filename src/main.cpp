@@ -4,6 +4,8 @@
 #include <Audio.h>
 #include <Wire.h>
 #include "Watchdog_t4.h"
+
+
 #define recordingLength 5
 #define sleepLength 25
 WDT_T4<WDT1> wdt;
@@ -479,7 +481,7 @@ void setup()
   config.timeout = 60; /* in seconds, 0->128 */
   config.callback = myCallback;
   wdt.begin(config);
-  delay(4000);
+  delay(2000);
   // Open serial communications and wait for port to open:
   AudioMemory(256);
   Serial.begin(9600);
@@ -526,22 +528,22 @@ void setup()
     }
   }
 
-  delay(100);
+  delay(500);
 
   Serial.print("Here are the default settings of register 0x05: ");
   Serial.println(cs42448_1.read(0x05), BIN);
-  delay(100);
+  delay(500);
 
   Serial.println("Set the ADC to differential mode...");
   // cs42448_1.adcSingleEndedMode();
   cs42448_1.adcDifferentialMode();
   Serial.println("Freeze the high pass filter...");
   // cs42448_1.adcHighPassFilterFreeze();
-  delay(100);
+  delay(500);
 
   Serial.print("Here are the updated settings of register 0x05: ");
   Serial.println(cs42448_1.read(0x05), BIN);
-  delay(100);
+  delay(500);
 
   // Set the codec output and input levels
   cs42448_1.volume(1);
@@ -689,9 +691,21 @@ void loop()
         digitalWrite(DEBUG_LED, LOW);
         timeElapsedFTP = millis();
       }
-      if (resetCounter > 10)
+      if (resetCounter > 10) // reset the teensy after 10 minutes of recording, will delay until watchdog kills it
       {
       delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+      delay(10000);
+
       }
       resetCounter++;
     }
