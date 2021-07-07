@@ -228,7 +228,7 @@ public:
     char buffer[256];
     int code;
 
-    snprintf(buffer, 256, "MKD %s", path);
+    snprintf(buffer, 256, "CWD %s", path);
     this->sendline(buffer);
 
     this->recvline(buffer, 256);

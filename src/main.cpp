@@ -78,6 +78,7 @@ IPAddress myDns(192, 168, 42, 1);
 // that you want to connect to (port 80 is default for HTTP):
 EthernetClient client;
 EthernetClient ftpdata;
+FTP<EthernetClient> g_ftp;
 
 // Variables to measure the speed
 unsigned long beginMicros, endMicros;
@@ -159,261 +160,54 @@ void continueRecording();
 void stopRecording();
 String createNewFolder(SdFs &sd_controller);
 
-void sendAll(EthernetClient &ethclient, const u_int8_t *data, size_t total)
+int upload_sd_file(char* filename)
 {
-  size_t nWritten = 0;
+  int code = 0;
+  FsFile file;
+  char buffer[512];
 
-  while (nWritten < total)
-  {
-    size_t count = ethclient.write(&data[nWritten], total - nWritten);
-    if ((int)count < 0)
-    {
-      Serial.println("ohfuck");
-      continue;
-    }
+  Serial.print("[+] transferring file ...");
 
-    nWritten += count;
-    // Serial.println(count);
-  }
-}
-extern unsigned long _heap_start;
-extern unsigned long _heap_end;
-extern char *__brkval;
-
-int freeram()
-{
-  return (char *)&_heap_end - __brkval;
-}
-
-short eRcv(char outBuf[], int size)
-{
-  // Serial.println("ercv");
-  // Serial.print("freeram = ");
-  // Serial.println(freeram());
-
-  byte thisByte;
-  char index;
-  String respStr = "";
-  if (!client.connected())
-  {
-    Serial.print(client.status());
-  }
-  while (!client.available())
-  {
-    delay(1);
-
-    // Serial.println("stuck");
-  }
-  // Serial.println("no stucky");
-  index = 0;
-
-  while (client.available())
-  {
-    // Serial.println("client avail");
-    thisByte = client.read();
-    Serial.write(thisByte);
-    if ((char)thisByte < 0)
-
-    {
-      Serial.println("ca;leb wiuns");
-    }
-    if (index < (size - 2))
-    { //less 2 to leave room for null at end
-      outBuf[index] = thisByte;
-      index++;
-    }
-  }                  //note if return from server is > size it is truncated.
-  outBuf[index] = 0; //putting a null because later strtok requires a null-delimited string
-  //The first three bytes of outBuf contain the FTP server return code - convert to int.
-  for (index = 0; index < 3; index++)
-  {
-    respStr += (char)outBuf[index];
-  }
-  return respStr.toInt();
-} // end function eRcv
-short FTPretcode = 400;
-
-int startFTP(String basefoldername)
-{
-
-  if (client.connect(server, 21))
-  {
-    Serial.print("connected to ");
-    Serial.println(client.remoteIP());
-    FTPretcode = eRcv(outBuf, 128);
-    // Serial.println(FTPretcode);
-    client.println("USER ftpuser");
-    FTPretcode = eRcv(outBuf, 128);
-    // Serial.println(FTPretcode);
-    client.println("PASS just4munk");
-    FTPretcode = eRcv(outBuf, 128);
-  }
-  else
-  {
+  file = g_sd_controller.open(filename, FILE_READ);
+  if( ! file ) {
+    Serial.print("\b\b\bfailed: unable to open: ");
+    Serial.println(filename);
     return -1;
   }
 
-  //CWD - Change the working folder on the FTP server
-  // if(!(folder == "")) {
-  //   client.print("CWD ");
-  //   client.println(folder);
-  //   FTPretcode = eRcv(outBuf,128);
-  //   if(FTPretcode >= 400) {return FTPretcode;} }
-  Serial.print("Creating folder: ");
-  Serial.println(basefoldername);
-  client.print("MKD ");
-  client.println(basefoldername);
-
-  FTPretcode = eRcv(outBuf, 128);
-  if (FTPretcode >= 400)
-  {
-    return FTPretcode;
-  }
-  //CWD - Change the working folder on the FTP server
-  // if(!(folder == "")) {
-  client.print("CWD ");
-  client.println(basefoldername);
-  FTPretcode = eRcv(outBuf, 128);
-  if (FTPretcode >= 400)
-  {
-    return FTPretcode;
-  }
-  /* SYST - Returns a word identifying the system, the word "Type:", 
-   * and the default transfer type (as would be set by the 
-   * TYPE command). For example: UNIX Type: L8 - this is what
-   * the diskstation returns
-   */
-  client.println("SYST");
-  FTPretcode = eRcv(outBuf, 128);
-  if (FTPretcode >= 400)
-    return FTPretcode;
-
-  /* TYPE - sets the transfer mode
-   * A - ASCII text
-   * E - EBCDIC text
-   * I - image (binary data)
-   * L - local format
-   * for A & E, second char is:
-   * N - Non-print (not destined for printing). This is the default if 
-   * second-type-character is omitted
-   * Telnet format control (<CR>, <FF>, etc.)
-   * C - ASA Carriage Control
-   */
-  client.println("Type I");
-  FTPretcode = eRcv(outBuf, 128);
-  if (FTPretcode >= 400)
-    return FTPretcode;
-}
-int doFTP(char *filetotransfer)
-{
-
-  /* PASV - Enter passive mode
-   * Tells the server to enter "passive mode". In passive mode, the server 
-   * will wait for the client to establish a connection with it rather than 
-   * attempting to connect to a client-specified port. The server will 
-   * respond with the address of the port it is listening on, with a message like:
-   * 227 Entering Passive Mode (a1,a2,a3,a4,p1,p2), e.g. from diskstation
-   * Entering Passive Mode (192,168,0,5,217,101)
-   */
-  Serial.println("PASV");
-  sendAll(client, "PASV\n", 5);
-  FTPretcode = eRcv(outBuf, 128);
-  if (FTPretcode >= 400)
-    return FTPretcode;
-  /* This is parsing the return from the server
-   * where a1.a2.a3.a4 is the IP address and p1*256+p2 is the port number. 
-   */
-  char *tStr = strtok(outBuf, "(,"); //chop the output buffer into tokens based on the delimiters
-  int array_pasv[6];
-  for (int i = 0; i < 6; i++)
-  {                             //there are 6 elements in the address to decode
-    tStr = strtok(NULL, "(,");  //1st time in loop 1st token, 2nd time 2nd token, etc.
-    array_pasv[i] = atoi(tStr); //convert to int, why atoi - because it ignores any non-numeric chars
-                                //after the number
-    if (tStr == NULL)
-    {
-      Serial.println(F("Bad PASV Answer"));
-    }
-  }
-  //extract data port number
-  unsigned int hiPort, loPort;
-  hiPort = array_pasv[4] << 8;  //bit shift left by 8
-  loPort = array_pasv[5] & 255; //bitwise AND
-  Serial.print(F("Data port: "));
-  hiPort = hiPort | loPort; //bitwise OR
-  Serial.println(hiPort);
-  //first instance of dftp
-  Serial.println("connecting to dataport");
-  while (!ftpdata.connected())
-  {
-    ftpdata.connect(server, hiPort);
-  }
-  Serial.println("connected");
-  /* STOR - Begin transmission of a file to the remote site. Must be preceded 
-   * by either a PORT command or a PASV command so the server knows where 
-   * to accept data from
-   */
-  Serial.println("Stor");
-  client.print("STOR ");
-  Serial.println(filetotransfer);
-  client.println(filetotransfer);
-  // filename
-  FTPretcode = eRcv(outBuf, 128);
-  Serial.println(FTPretcode);
-  if (FTPretcode >= 400)
-  {
-    ftpdata.stop();
-    return FTPretcode;
-  }
-  Serial.println(F("Writing..."));
-
-  byte clientBuf[512];
-  int count = 512;
-  // ftpdata.print("hello");
-
-  FsFile file = g_sd_controller.open(filetotransfer, FILE_READ);
-  if (!file)
-  {
-    Serial.println("open failed");
-    return;
-  }
-  Serial.println("Begin send");
-  while (count == 512)
-  {
-    count = file.read(clientBuf, 512);
-    if (count < 0)
-    {
-      count = 512;
-      Serial.println("errrororoororor");
-      continue;
-    }
-    sendAll(ftpdata, clientBuf, count);
-    // delay(10);
+  // Open the file
+  code = g_ftp.open(filename, FTP_MODE_WRITE);
+  if( code != 0 ) {
+    Serial.print("\b\b\bfailed: FTP status code: ");
+    Serial.println(code);
+    file.close();
+    return code;
   }
 
-  ftpdata.stop();
+  Serial.print("\b\b\b");
+  Serial.print(filename);
+
+  // Write data from SD card file to FTP data port
+  for(size_t count = file.read(buffer, 512); count != 0; count = file.read(buffer, 512)) {
+    g_ftp.write(buffer, count);
+  }
+
+  // Close file
   file.close();
-  Serial.println(F("Data disconnected"));
-  FTPretcode = eRcv(outBuf, 128);
-  if (FTPretcode >= 400)
-  {
-    return FTPretcode;
+
+  // Close/complete ftp write
+  code = g_ftp.close();
+
+  Serial.print(" (status: ");
+  Serial.print(code);
+  Serial.println(")");
+
+  if( code != 0 ) {
+    return code;
   }
-  delay(50);
+
+  return 0;
 }
-
-int stopFTP()
-{
-
-  //End the connection
-  client.println("QUIT");
-  client.stop();
-  Serial.println(F("Disconnected from FTP server"));
-
-  // ftx.close();
-  Serial.println(F("File closed"));
-  return FTPretcode;
-} // end function doFTP
 
 String createNewFolder(SdFs &sd_controller)
 {
@@ -427,16 +221,11 @@ String createNewFolder(SdFs &sd_controller)
   {
     foldername = baseFolderName + basenumber;
 
-    if (sd_controller.exists(foldername))
-    {
-      Serial.print("error: folder exists ");
-      Serial.println(foldername);
+    if (sd_controller.exists(foldername)) {
       basenumber += 1;
-    }
-    else
-    {
+    } else {
       sd_controller.mkdir(foldername);
-      Serial.print("Folder Created ");
+      Serial.print("[+] created folder: ");
       Serial.println(foldername);
       break;
     }
@@ -564,40 +353,6 @@ unsigned long timeStartFTP = 0;
 String basefoldername = "rec";
 void loop()
 {
-  FTP<EthernetClient> ftp;
-
-  delay(5000);
-
-  Serial.println("Here we go");
-
-  if( ftp.connect(IPAddress(192, 168, 42, 6), 21) != 0 ) {
-    Serial.println("oh, shit look at dat udder!");
-    return;
-  }
-
-  if( ftp.auth("ftpuser", "just4munk") != 0 ) {
-    Serial.println("damn, gurl, you got some nice hooves.");
-    return;
-  }
-
-  if( ftp.open("proof.txt", FTP_MODE_WRITE) != 0 ){
-    Serial.println("ugh");
-    return;
-  }
-
-  if( ftp.write("Hello World\n", 12) != 12 ){
-    Serial.println("wat");
-    return;
-  }
-
-  if( ftp.close() != 0 ){
-    Serial.println("are you fo seriuz");
-  }
-
-  Serial.println("holy damn, you got a big fuck");
-  ftp.disconnect();
-
-  return;
   int startFlag = 1;
   basefoldername = createNewFolder(g_sd_controller);
   format_result = snprintf(filename1, FILENAME_LENGTH, FILENAME_FORMAT_1, 1);
@@ -683,44 +438,39 @@ void loop()
        wdt.feed();
       stopRecording();
       timeStartFTP = millis();
-      int statusflag = startFTP(basefoldername);
-      Serial.print("Start Status: ");
-      Serial.println(statusflag);
-      Serial.print("Transfering file: ");
-      Serial.println(filename1);
-      statusflag = doFTP(filename1);
-      Serial.print("Transfer Status: ");
-      Serial.println(statusflag);
-      delay(500);
-      Serial.print("Transfering file: ");
-      Serial.println(filename2);
-      statusflag = doFTP(filename2);
-      Serial.print("Transfer Status: ");
-      Serial.println(statusflag);
-      Serial.print("Transfering file: ");
-      Serial.println(filename3);
-      statusflag = doFTP(filename3);
-      Serial.print("Transfer Status: ");
-      Serial.println(statusflag);
-      Serial.print("Transfering file: ");
-      Serial.println(filename4);
-      statusflag = doFTP(filename4);
-      Serial.print("Transfer Status: ");
-      Serial.println(statusflag);
-      // Serial.print("Transfering file: ");Serial.println(filename5);
-      // statusflag = doFTP(filename5);
-      // Serial.print("Transfer Status: ");Serial.println(statusflag);
-      // Serial.print("Transfering file: ");Serial.println(filename6);
-      // statusflag = doFTP(filename6);
-      // Serial.print("Transfer Status: ");Serial.println(statusflag);
-      statusflag = stopFTP();
-      Serial.print("Status: ");
-      Serial.println(statusflag);
-      Serial.println("Changing Directory: ../");
+      int code = 0;
+
+      code = g_ftp.connect(server, 21);
+      if( code == 0 ) {
+        code = g_ftp.auth("ftpuser", "just4munk");
+        if( code == 0 ) {
+          // Create and enter the recording directory
+          g_ftp.mkdir(basefoldername.c_str());
+          g_ftp.chdir(basefoldername.c_str());
+
+          upload_sd_file(filename1);
+          upload_sd_file(filename2);
+          upload_sd_file(filename3);
+          upload_sd_file(filename4);
+        } else {
+          Serial.print("[+] ftp authentication failed: ");
+          Serial.println(code);
+        }
+
+        // Shutdown FTP connection(s)
+        g_ftp.disconnect();
+      } else {
+        // FTP connection error
+        Serial.print("ftp connection error: ");
+        Serial.println(code);
+      }
+
+      Serial.println("[+] switching sdfat back to root directory");
       g_sd_controller.chdir("/");
+
       startFlag = 0;
       timeElapsedFTP = millis();
-      while (timeElapsedFTP < (recordingLength + timeStartFTP))
+      while (timeElapsedFTP < (sleepLength + timeStartFTP))
       {
 
         digitalWrite(DEBUG_LED, LOW);
@@ -749,7 +499,7 @@ void loop()
       continueRecording();
     }
     timeElapsed = millis();
-    if (timeElapsed > (sleepLength + timeStart))
+    if (timeElapsed > (recordingLength + timeStart))
     {
       recordingFlag = 0;
       digitalWrite(DEBUG_LED, LOW);
