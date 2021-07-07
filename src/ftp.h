@@ -18,7 +18,7 @@ template<typename Client>
 class FTP
 {
 public:
-  FTP() : m_authed(false), m_server(), m_data() {};
+  FTP() : m_authed(false), m_server(), m_data(), m_mode(0) {};
   ~FTP() {
     this->disconnect();
   };
@@ -26,17 +26,27 @@ public:
   // Connect to the given server. This closes any active server or data connections
   int connect(IPAddress host, uint16_t port)
   {
+    int code;
+
     // Ensure we are disconnected
     this->disconnect();
 
     if ( this->m_server.connect(host, port) <= 0 ) {
-      return 0;
+      return -1;
     }
 
     // Receive the FTP banner string
     this->recvline(this->m_banner, FTP_BANNER_LEN);
+    code = atoi(this->m_banner);
+    if( code != 220 ) {
+      this->m_server.stop();
+      return code;
+    }
+
     // Save server address
     this->m_server_addr = host;
+
+    return 0;
   }
 
   // Disconnect from the server
@@ -85,6 +95,13 @@ public:
       return code;
     }
 
+    this->sendline("TYPE I");
+    this->recvline(buffer, 256);
+    code = atoi(buffer);
+    if( code != 200 ) {
+      return code;
+    }
+
     // SUCCESS! :)
     this->m_authed = true;
 
@@ -128,26 +145,100 @@ public:
     }
 
     // Connect to data port
-    if( this->m_data.connect(this->m_server_addr, data_port) <= 0 ) {
-      return -3;
+    while ( ! this->m_data.connected() ) {
+      this->m_data.connect(this->m_server_addr, data_port);
+      delay(100);
     }
 
+    // Tell the server where to store the data
     snprintf(buffer, 256, "STOR %s", path);
     this->sendline(buffer);
 
     this->recvline(buffer, 256);
     code = atoi(buffer);
+    if( code != 150 ) {
+      this->m_data.stop();
+      return code;
+    }
 
+    return 0;
   }
 
   // Close the data connection
-  void close();
+  int close()
+  {
+    char buffer[256];
+    int code;
+
+    if( !this->m_data.connected() ) {
+      return 0;
+    }
+
+    // Close the data connection
+    this->m_data.stop();
+
+    // Receive result from FTP
+    this->recvline(buffer, 256);
+    code = atoi(buffer);
+
+    if( code < 200 || code >= 300 ) {
+      return code;
+    }
+
+    return 0;
+  }
 
   // Read the given number of bytes from the opened file
   size_t read(char* buffer, size_t count);
 
   // Write the given number of bytes to the opened file
-  size_t write(const char* buffer, size_t count);
+  size_t write(const char* buffer, size_t len)
+  {
+    size_t idx = 0;
+    size_t count = 0;
+
+    while( idx < len ) {
+      count = this->m_data.write(&buffer[idx], len-idx);
+      idx += count;
+    }
+
+    return idx;
+  }
+
+  // Create a new directory
+  int mkdir(const char* path)
+  {
+    char buffer[256];
+    int code;
+
+    snprintf(buffer, 256, "MKD %s", path);
+    this->sendline(buffer);
+
+    this->recvline(buffer, 256);
+    code = atoi(buffer);
+    if ( code != 257 ) {
+      return code;
+    }
+
+    return 0;
+  }
+
+  int chdir(const char* path)
+  {
+    char buffer[256];
+    int code;
+
+    snprintf(buffer, 256, "MKD %s", path);
+    this->sendline(buffer);
+
+    this->recvline(buffer, 256);
+    code = atoi(buffer);
+    if ( code != 250 ) {
+      return code;
+    }
+
+    return 0;
+  }
 
 private:
 

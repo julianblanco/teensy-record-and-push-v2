@@ -566,6 +566,8 @@ void loop()
 {
   FTP<EthernetClient> ftp;
 
+  delay(5000);
+
   Serial.println("Here we go");
 
   if( ftp.connect(IPAddress(192, 168, 42, 6), 21) != 0 ) {
@@ -578,17 +580,23 @@ void loop()
     return;
   }
 
-  ftp.chdir("");
-  ftp.mkdir("");
+  if( ftp.open("proof.txt", FTP_MODE_WRITE) != 0 ){
+    Serial.println("ugh");
+    return;
+  }
 
-  ftp.open("", FTP_MODE_WRITE);
-  ftp.write();
-  ftp.close();
+  if( ftp.write("Hello World\n", 12) != 12 ){
+    Serial.println("wat");
+    return;
+  }
+
+  if( ftp.close() != 0 ){
+    Serial.println("are you fo seriuz");
+  }
 
   Serial.println("holy damn, you got a big fuck");
   ftp.disconnect();
 
-  delay(10000);
   return;
   int startFlag = 1;
   basefoldername = createNewFolder(g_sd_controller);
