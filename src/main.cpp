@@ -4,10 +4,10 @@
 #include <Audio.h>
 #include <Wire.h>
 #include "Watchdog_t4.h"
+#include "ftp.h"
 
-
-#define recordingLength 5
-#define sleepLength 25
+#define recordingLength 5000
+#define sleepLength 25000
 WDT_T4<WDT1> wdt;
 #define numnum 120
 char fnetheap[numnum * 1024];
@@ -554,7 +554,8 @@ void setup()
   debug_log("datalogger initializing with:");
   debug_write("  Sample Freq: ");
   debug_log("44100");
-  
+
+
 }
 
 unsigned long timeElapsed = 0;
@@ -563,6 +564,32 @@ unsigned long timeStartFTP = 0;
 String basefoldername = "rec";
 void loop()
 {
+  FTP<EthernetClient> ftp;
+
+  Serial.println("Here we go");
+
+  if( ftp.connect(IPAddress(192, 168, 42, 6), 21) != 0 ) {
+    Serial.println("oh, shit look at dat udder!");
+    return;
+  }
+
+  if( ftp.auth("ftpuser", "just4munk") != 0 ) {
+    Serial.println("damn, gurl, you got some nice hooves.");
+    return;
+  }
+
+  ftp.chdir("");
+  ftp.mkdir("");
+
+  ftp.open("", FTP_MODE_WRITE);
+  ftp.write();
+  ftp.close();
+
+  Serial.println("holy damn, you got a big fuck");
+  ftp.disconnect();
+
+  delay(10000);
+  return;
   int startFlag = 1;
   basefoldername = createNewFolder(g_sd_controller);
   format_result = snprintf(filename1, FILENAME_LENGTH, FILENAME_FORMAT_1, 1);
