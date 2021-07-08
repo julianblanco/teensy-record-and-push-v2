@@ -266,7 +266,7 @@ private:
     return idx;
   }
 
-  void sendall(char* buffer, size_t len)
+  void sendall(const char* buffer, size_t len)
   {
     size_t idx = 0;
     size_t count = 0;
@@ -276,18 +276,18 @@ private:
     }
   }
 
-  void sendline(char* buffer)
+  void sendline(const char* buffer)
   {
     sendall(buffer, strlen(buffer));
     sendall("\r\n", 2);
   }
 
+  bool m_authed;
   Client m_server;
   Client m_data;
   int m_mode;
   char m_banner[FTP_BANNER_LEN];
   IPAddress m_server_addr;
-  bool m_authed;
 };
 
 #endif
