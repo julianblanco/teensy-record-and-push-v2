@@ -96,7 +96,7 @@ private:
    * @param recording_dir Path to recording directory on both SD and FTP
    * @param data_file Open handles to SD files which are being sampled to
    */
-  void stop_sample(const char* recording_dir, CONFIG_SD_FILE* data_file);
+  void stop_sample(const char* recording_dir);
 
   /**
    * The following initialization routines are called by setup().
@@ -147,6 +147,10 @@ private:
 // Private internal variables not used by the sensor directly
 private:
   uint8_t m_network_heap[CONFIG_NETWORK_HEAP_SIZE];
+
+// Static variables used for audio shenanigans
+private:
+  static DMAMEM audio_block_t m_audio_queue_buffer[CONFIG_AUDIO_BUFFER_SIZE];
 };
 
 #endif

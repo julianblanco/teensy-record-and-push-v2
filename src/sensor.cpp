@@ -1,5 +1,7 @@
 #include "sensor.h"
 
+DMAMEM audio_block_t Sensor::m_audio_queue_buffer[CONFIG_AUDIO_BUFFER_SIZE];
+
 Sensor::Sensor()
   : m_audio_patch { CONFIG_AUDIO_PATCH_INIT }
 { }
@@ -11,14 +13,13 @@ void Sensor::run()
 
   char recording_dir[256]; // path to the recording directory
   CONFIG_SD_FILE data_file[CONFIG_CHANNEL_COUNT]; // Open SD card file object
-  unsigned long recording_end = 0;
+  byte sd_buffer[512];
+  size_t collected_buffers = 0;
+  unsigned long time_stopped;
 
   // Initialize recording directory and data files and start
   // audio sampling queues.
   this->start_sample(recording_dir, 256, data_file);
-
-  // turn on the LED when we are sampling
-  recording_end = millis() + CONFIG_SAMPLE_LENGTH;
 
   while( 1 )
   {
@@ -27,24 +28,41 @@ void Sensor::run()
     for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
       if( m_audio_queue[ch].available() < 2 ) continue;
 
+      // Grab two blocks at a time to line up with SD write sizes and maximize
+      // write efficiency.
       for(int i = 0; i < 2; ++i) {
-        data_file[ch].write(m_audio_queue[ch].readBuffer(), 256);
+        memcpy(sd_buffer + i*256, m_audio_queue[ch].readBuffer(), 256);
         m_audio_queue[ch].freeBuffer();
       }
+
+      data_file[ch].write(sd_buffer, 512);
     }
 
-    if( millis() >= recording_end ) {
-      // Stop the sampling process and flush queues
-      this->stop_sample(recording_dir, data_file);
+    collected_buffers += 1;
 
-      // Sleep for our hold length
-      delay(CONFIG_HOLD_LENGTH);
+    // Collected enough samples to meet recording length
+    if( collected_buffers >= CONFIG_RECORDING_SAMPLE_COUNT ) {
+
+      // Record the time we should have stopped, since upload may take a couple seconds
+      // if network latency is high.
+      time_stopped = millis();
+
+      // Close files; we are done writing
+      for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ++ch) {
+        data_file[ch].close();
+      }
+
+      // Stop the sampling process and flush queues
+      this->stop_sample(recording_dir);
+
+      // Sleep for the remaining hold time
+      delay(CONFIG_HOLD_LENGTH - (millis() - time_stopped));
 
       // Restart recording
       this->start_sample(recording_dir, 256, data_file);
 
-      // Adjust ending time
-      recording_end = millis() + CONFIG_SAMPLE_LENGTH;
+      // Reset number of collected buffers
+      collected_buffers = 0;
     }
 
   }
@@ -76,6 +94,32 @@ int Sensor::setup()
 int Sensor::generate_new_dir(char* recording_dir, size_t length)
 {
   size_t needed;
+  size_t blocks_left = m_sd.freeClusterCount() * m_sd.sectorsPerCluster();
+
+  // Check if we have enough for this recording + 2 blocks for accounting information
+  while ( blocks_left < (CONFIG_RECORDING_TOTAL_BLOCKS + 2) ) {
+#ifdef CONFIG_SD_CARD_ROLLOFF
+    char channel_path[256];
+
+    for(int id = 0; ; id++){
+      // Produce a new folder path
+      needed = snprintf(recording_dir, length, CONFIG_RECORDING_DIRECTORY, id);
+      if( ! m_sd.exists(recording_dir) ) continue;
+
+      for(int ch = 0; ; ch++) {
+        snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
+        if( !m_sd.exists(channel_path) ) break;
+        m_sd.remove(channel_path);
+      }
+
+      m_sd.rmdir(recording_dir);
+
+      break;
+    }
+#else
+    this->panic("sd card full and rolloff disabled!", -1);
+#endif
+  }
 
   for(int id = 0; ; id++) {
     // Produce a new folder path
@@ -109,21 +153,22 @@ void Sensor::start_sample(char* recording_dir, size_t length, CONFIG_SD_FILE* da
   // Visual indicator of sampling period
   digitalWrite(CONFIG_LED, HIGH);
 
+  // Initialize separately so they happen as close to the same time as possible
+  for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++){
+    m_audio_queue[ch].begin();
+  }
+
   // Open each channel file
   for( int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++ ) {
-
     // Open the channel output file
     snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
     if( ! data_file[ch].open(channel_path, FILE_WRITE) ) {
       this->panic("failed to open channel file", -1);
     }
-
-    // Initialize the queue
-    m_audio_queue[ch].begin();
   }
 }
 
-void Sensor::stop_sample(const char* recording_dir, CONFIG_SD_FILE* data_file)
+void Sensor::stop_sample(const char* recording_dir)
 {
   CONFIG_SD_FILE channel;
   char channel_path[256];
@@ -141,6 +186,7 @@ void Sensor::stop_sample(const char* recording_dir, CONFIG_SD_FILE* data_file)
   // Complete each sampling first in order to stop all sampling at approximately the same time
   for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++){
     m_audio_queue[ch].end();
+    m_audio_queue[ch].clear();
   }
 
   // Connect to the FTP server
@@ -161,17 +207,8 @@ void Sensor::stop_sample(const char* recording_dir, CONFIG_SD_FILE* data_file)
   // Ensure the directory exists in the FTP server
   m_ftp.mkdir(recording_dir);
 
-  // Now, flush buffers and upload the data
+  // Now, upload the data
   for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
-
-    // Flush any remaining data
-    while( m_audio_queue[ch].available() > 0 ) {
-      data_file[ch].write((byte*)m_audio_queue[ch].readBuffer(), 256);
-      m_audio_queue[ch].freeBuffer();
-    }
-
-    // Close the file
-    data_file[ch].close();
 
     // Upload the file to the FTP server
     snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
@@ -303,6 +340,14 @@ int Sensor::init_serial()
 
 int Sensor::init_audio()
 {
+
+  // [Beef Stroganof](https://github.com/PaulStoffregen) does `AudioMemory` which is
+  // idiotically a non-captialized preprocessor macro. So we decided not to be stupid.
+  AudioStream::initialize_memory(
+    Sensor::m_audio_queue_buffer,
+    CONFIG_AUDIO_BUFFER_SIZE
+  );
+
   if( ! m_audio_control.enable() ){
     return -1;
   }

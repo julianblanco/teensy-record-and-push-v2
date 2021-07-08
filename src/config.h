@@ -40,12 +40,17 @@
 // LED used to indicate sampling
 #define CONFIG_LED                         LED_BUILTIN
 // Length of time to sample (milliseconds)
-#define CONFIG_SAMPLE_LENGTH               5000
+#define CONFIG_RECORDING_LENGTH               5000
 // Length of time to sleep between sampling (milliseconds)
 #define CONFIG_HOLD_LENGTH                 25000
 // FTP credentials for sample uploads
 #define CONFIG_FTP_USER                    "ftpuser"
 #define CONFIG_FTP_PASSWORD                "just4munk"
+// Size of the audio queue buffer
+#define CONFIG_AUDIO_BUFFER_SIZE           256
+// Roll off old recordings when SD card is full
+#define CONFIG_SD_CARD_ROLLOFF             0
+
 
 /*********************************************************
 
@@ -92,8 +97,11 @@
   AudioConnection(m_tdm, 0, m_audio_queue[0], 0), \
   AudioConnection(m_tdm, 2, m_audio_queue[1], 0), \
   AudioConnection(m_tdm, 4, m_audio_queue[2], 0), \
-  AudioConnection(m_tdm, 8, m_audio_queue[3], 0)
+  AudioConnection(m_tdm, 6, m_audio_queue[3], 0)
 #endif
 
+// Number of samples to collect to meet recording length (floor'd)
+#define CONFIG_RECORDING_SAMPLE_COUNT ((size_t)( ((CONFIG_RECORDING_LENGTH / 1000) * 44100) / 256 ))
+#define CONFIG_RECORDING_TOTAL_BLOCKS ((CONFIG_CHANNEL_COUNT * (CONFIG_RECORDING_SAMPLE_COUNT*256) * 2) / 512)
 
 #endif
