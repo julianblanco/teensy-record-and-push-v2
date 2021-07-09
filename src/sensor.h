@@ -15,9 +15,6 @@
 #include "ftp.h"
 #include "config.h"
 
-// Size of the heap passed to ethernet initialization
-#define NETWORK_HEAP_SIZE (1024*120)
-
 class Sensor
 {
 // Public interface methods
