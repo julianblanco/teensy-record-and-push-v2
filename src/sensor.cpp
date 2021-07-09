@@ -23,10 +23,11 @@ void Sensor::run()
 
   while( 1 )
   {
+    m_watchdog.feed();
 
     // Sample all channels and write to disk
     for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
-      if( m_audio_queue[ch].available() < 2 ) continue;
+      while( m_audio_queue[ch].available() < 2 );
 
       // Grab two blocks at a time to line up with SD write sizes and maximize
       // write efficiency.
@@ -55,8 +56,16 @@ void Sensor::run()
       // Stop the sampling process and flush queues
       this->stop_sample(recording_dir);
 
+      unsigned long ellapsed = millis() - time_stopped;
+      this->log("[+] upload complete after %dms\n", ellapsed);
+
       // Sleep for the remaining hold time
-      delay(CONFIG_HOLD_LENGTH - (millis() - time_stopped));
+      if( ellapsed < CONFIG_HOLD_LENGTH ) {
+        this->log("[+] sleep for %dms\n", CONFIG_HOLD_LENGTH-ellapsed);
+        delay(CONFIG_HOLD_LENGTH - ellapsed);
+      } else {
+        this->log("[+] foregoing sleep due to lengthy upload\n");
+      }
 
       // Restart recording
       this->start_sample(recording_dir, 256, data_file);
@@ -73,11 +82,11 @@ int Sensor::setup()
 {
   int code = 0;
 
-  code = this->init_watchdog();
-  if( code != 0 ) this->panic("watchdog initialization failed", code);
-
   code = this->init_serial();
   if( code != 0 ) this->panic("serial initialization failed", code);
+
+  this->log("[-] waiting five seconds for startup sequence...");
+  delay(5000);
 
   code = this->init_sdcard();
   if( code != 0 ) this->panic("sdcard initialization failed", code);
@@ -87,6 +96,9 @@ int Sensor::setup()
 
   code = this->init_audio();
   if( code != 0 ) this->panic("audio initialization failed", code);
+
+  code = this->init_watchdog();
+  if( code != 0 ) this->panic("watchdog initialization failed", code);
 
   return 0;
 }
@@ -101,18 +113,25 @@ int Sensor::generate_new_dir(char* recording_dir, size_t length)
 #ifdef CONFIG_SD_CARD_ROLLOFF
     char channel_path[256];
 
-    for(int id = 0; ; id++){
+    for(int id = m_first_recording; ; id++){
       // Produce a new folder path
       needed = snprintf(recording_dir, length, CONFIG_RECORDING_DIRECTORY, id);
+
+      // Ignore non-existent entries
       if( ! m_sd.exists(recording_dir) ) continue;
 
+      // Remove channel data
       for(int ch = 0; ; ch++) {
         snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
         if( !m_sd.exists(channel_path) ) break;
         m_sd.remove(channel_path);
       }
 
+      // Remove the recording directory
       m_sd.rmdir(recording_dir);
+
+      // Update first recording ID
+      m_first_recording = id;
 
       break;
     }
@@ -121,7 +140,7 @@ int Sensor::generate_new_dir(char* recording_dir, size_t length)
 #endif
   }
 
-  for(int id = 0; ; id++) {
+  for(int id = m_next_recording; ; id++) {
     // Produce a new folder path
     needed = snprintf(recording_dir, length, CONFIG_RECORDING_DIRECTORY, id);
 
@@ -134,6 +153,8 @@ int Sensor::generate_new_dir(char* recording_dir, size_t length)
     if( ! m_sd.exists(recording_dir) ) {
       // Create the new directory
       m_sd.mkdir(recording_dir);
+      // Increment counter
+      m_next_recording = id + 1;
       return 0;
     }
   }
@@ -277,7 +298,7 @@ int Sensor::init_ethernet()
   this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
   this->log("                                ");
   this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-  this->log("[+] initialized sd card\n");
+  this->log("[+] initialized ethernet\n");
 
   return 0;
 }
@@ -286,6 +307,7 @@ int Sensor::init_sdcard()
 {
   const char* const animation = "\\|/-";
   int frame = 0;
+  char recording_dir[256];
 
   // Wait for an SD card to be inserted
   this->log("[-] waiting for sd card insertion...");
@@ -302,6 +324,55 @@ int Sensor::init_sdcard()
   this->log("                                    ");
   this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
   this->log("[+] initialized sd card\n");
+  this->log("[-] locating first saved recording");
+
+  // This marker file is created the first time the sensor is executed, and removed
+  // when clearing the data, which allows us to reliably test for existing data.
+  if( m_sd.exists("/recording_started") ) {
+    // Locate the first **existing recording**
+    for(int id = 0; ; id++) {
+
+      this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+      this->log("[%c] locating first saved recording", animation[frame]);
+      frame = (frame + 1) % 4;
+
+      // Produce a new folder path
+      snprintf(recording_dir, 256, CONFIG_RECORDING_DIRECTORY, id);
+
+      // Does it exist?
+      if( m_sd.exists(recording_dir) ) {
+        m_first_recording = id;
+        break;
+      }
+    }
+  } else {
+    m_first_recording = 0;
+    // Touch the marker file
+    m_sd.open("/recording_started", O_WRONLY | O_CREAT).close();
+  }
+
+  this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+  this->log("[+] located first saved recording: %d\n", m_first_recording);
+  this->log("[-] locating next free recording slot");
+
+  // Find the first free recording slot; this can take a while if the SD card is very full.
+  // It takes approximately 10ms per directory existence check for some reason.
+  for(int id = m_first_recording; ; id++){
+
+    this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+    this->log("[%c] locating next free recording slot %d", animation[frame], id);
+    frame = (frame + 1) % 4;
+
+    snprintf(recording_dir, 256, CONFIG_RECORDING_DIRECTORY, id);
+    if( ! m_sd.exists(recording_dir) ) {
+      m_next_recording = id;
+      break;
+    }
+  }
+
+  // Let the user know where we're starting
+  this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
+  this->log("[+] identified first recording slot %d          \n", m_next_recording);
 
   return 0;
 }
@@ -328,12 +399,16 @@ int Sensor::init_watchdog()
   // Start the watchdog
   m_watchdog.begin(config);
 
+  this->log("[+] initialized watchdog\n");
+
   return 0;
 }
 
 int Sensor::init_serial()
 {
   Serial.begin(CONFIG_SERIAL_BAUD);
+
+  this->log("[+] initialized serial\n");
 
   return 0;
 }
@@ -358,6 +433,8 @@ int Sensor::init_audio()
   // Set codec input and output levels
   m_audio_control.volume(1);
   m_audio_control.inputLevel(15.85);
+
+  this->log("[+] initialized audio controller\n");
 
   return 0;
 }

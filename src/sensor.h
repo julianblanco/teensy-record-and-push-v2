@@ -143,6 +143,8 @@ private:
   AudioConnection m_audio_patch[CONFIG_CHANNEL_COUNT];
   AudioControlCS42448 m_audio_control;
   CONFIG_SD_CONTROLLER m_sd;
+  unsigned long m_next_recording;
+  unsigned long m_first_recording;
 
 // Private internal variables not used by the sensor directly
 private:
