@@ -131,7 +131,14 @@ int Sensor::generate_new_dir(char* recording_dir, size_t length)
       m_sd.rmdir(recording_dir);
 
       // Update first recording ID
-      m_first_recording = id;
+      m_first_recording = id + 1;
+
+      // Update first recording tracker on disk
+      CONFIG_SD_FILE file = m_sd.open("/first_recording", O_WRONLY);
+      char buffer[64];
+      size_t len = snprintf(buffer, 64, "%ld\n", m_first_recording);
+      file.write(buffer, len);
+      file.close();
 
       break;
     }
@@ -155,6 +162,14 @@ int Sensor::generate_new_dir(char* recording_dir, size_t length)
       m_sd.mkdir(recording_dir);
       // Increment counter
       m_next_recording = id + 1;
+
+      // Update the next recording tracker on disk
+      CONFIG_SD_FILE file = m_sd.open("/next_recording", O_WRONLY);
+      char buffer[64];
+      size_t len = snprintf(buffer, 64, "%ld\n", m_next_recording);
+      file.write(buffer, len);
+      file.close();
+
       return 0;
     }
   }
@@ -234,6 +249,7 @@ void Sensor::stop_sample(const char* recording_dir)
     // Upload the file to the FTP server
     snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
 
+
     // Open local data file
     channel = m_sd.open(channel_path, FILE_READ);
     if( !channel ) {
@@ -307,7 +323,6 @@ int Sensor::init_sdcard()
 {
   const char* const animation = "\\|/-";
   int frame = 0;
-  char recording_dir[256];
 
   // Wait for an SD card to be inserted
   this->log("[-] waiting for sd card insertion...");
@@ -324,55 +339,41 @@ int Sensor::init_sdcard()
   this->log("                                    ");
   this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
   this->log("[+] initialized sd card\n");
-  this->log("[-] locating first saved recording");
 
-  // This marker file is created the first time the sensor is executed, and removed
-  // when clearing the data, which allows us to reliably test for existing data.
-  if( m_sd.exists("/recording_started") ) {
-    // Locate the first **existing recording**
-    for(int id = 0; ; id++) {
+  // We track the recording file. If drop off is disabled, then this never changes.
+  if( m_sd.exists("/first_recording") ) {
+    char buffer[64];
+    CONFIG_SD_FILE file = m_sd.open("/first_recording", O_RDONLY);
+    file.read(buffer,64);
+    file.close();
 
-      this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-      this->log("[%c] locating first saved recording", animation[frame]);
-      frame = (frame + 1) % 4;
-
-      // Produce a new folder path
-      snprintf(recording_dir, 256, CONFIG_RECORDING_DIRECTORY, id);
-
-      // Does it exist?
-      if( m_sd.exists(recording_dir) ) {
-        m_first_recording = id;
-        break;
-      }
-    }
+    m_first_recording = atoi(buffer);
   } else {
     m_first_recording = 0;
     // Touch the marker file
-    m_sd.open("/recording_started", O_WRONLY | O_CREAT).close();
+    CONFIG_SD_FILE file = m_sd.open("/first_recording", O_WRONLY | O_CREAT);
+    file.write("0\n", 2);
+    file.close();
   }
 
-  this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-  this->log("[+] located first saved recording: %d\n", m_first_recording);
-  this->log("[-] locating next free recording slot");
+  // This is updated after every recording, and helps start up times when the SD card
+  // has a lot of recordings (e.g. >1k).
+  if( m_sd.exists("/next_recording") ) {
+    char buffer[64];
+    CONFIG_SD_FILE file = m_sd.open("/next_recording", O_RDONLY);
+    file.read(buffer,64);
+    file.close();
 
-  // Find the first free recording slot; this can take a while if the SD card is very full.
-  // It takes approximately 10ms per directory existence check for some reason.
-  for(int id = m_first_recording; ; id++){
-
-    this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-    this->log("[%c] locating next free recording slot %d", animation[frame], id);
-    frame = (frame + 1) % 4;
-
-    snprintf(recording_dir, 256, CONFIG_RECORDING_DIRECTORY, id);
-    if( ! m_sd.exists(recording_dir) ) {
-      m_next_recording = id;
-      break;
-    }
+    m_next_recording = atoi(buffer);
+  } else {
+    m_next_recording = 0;
+    CONFIG_SD_FILE file = m_sd.open("/next_recording", O_WRONLY | O_CREAT);
+    file.write("0\n", 2);
+    file.close();
   }
 
-  // Let the user know where we're starting
-  this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-  this->log("[+] identified first recording slot %d          \n", m_next_recording);
+  this->log("[+] first saved recording: %ld\n", m_first_recording);
+  this->log("[+] next recording slot: %ld\n", m_next_recording);
 
   return 0;
 }
