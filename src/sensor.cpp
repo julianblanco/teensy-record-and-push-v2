@@ -91,8 +91,10 @@ int Sensor::setup()
   code = this->init_sdcard();
   if( code != 0 ) this->panic("sdcard initialization failed", code);
 
+#if ! CONFIG_DISABLE_NETWORK
   code = this->init_ethernet();
   if( code != 0 ) this->panic("ethernet initialization failed", code);
+#endif
 
   code = this->init_audio();
   if( code != 0 ) this->panic("audio initialization failed", code);
@@ -110,7 +112,7 @@ int Sensor::generate_new_dir(char* recording_dir, size_t length)
 
   // Check if we have enough for this recording + 2 blocks for accounting information
   while ( blocks_left < (CONFIG_RECORDING_TOTAL_BLOCKS + 2) ) {
-#ifdef CONFIG_SD_CARD_ROLLOFF
+#if CONFIG_SD_CARD_ROLLOFF
     char channel_path[256];
 
     for(int id = m_first_recording; ; id++){
@@ -207,9 +209,11 @@ void Sensor::start_sample(char* recording_dir, size_t length, CONFIG_SD_FILE* da
 void Sensor::stop_sample(const char* recording_dir)
 {
   CONFIG_SD_FILE channel;
+#if ! CONFIG_DISABLE_NETWORK
   char channel_path[256];
   char buffer[512];
   int code;
+#endif
 
   this->log("[+] recording period complete; uploading to: %s\n", recording_dir);
 
@@ -224,6 +228,8 @@ void Sensor::stop_sample(const char* recording_dir)
     m_audio_queue[ch].end();
     m_audio_queue[ch].clear();
   }
+
+#if ! CONFIG_DISABLE_NETWORK
 
   // Connect to the FTP server
   code = m_ftp.connect(CONFIG_FTP_ADDRESS, CONFIG_FTP_PORT);
@@ -283,7 +289,11 @@ void Sensor::stop_sample(const char* recording_dir)
   // FTP no longer needed
   m_ftp.disconnect();
 
+#endif /* ! CONFIG_DISABLE_NETWORK */
+
 }
+
+#if ! CONFIG_DISABLE_NETWORK
 
 int Sensor::init_ethernet()
 {
@@ -318,6 +328,8 @@ int Sensor::init_ethernet()
 
   return 0;
 }
+
+#endif
 
 int Sensor::init_sdcard()
 {

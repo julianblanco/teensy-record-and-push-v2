@@ -50,6 +50,8 @@
 #define CONFIG_AUDIO_BUFFER_SIZE           256
 // Roll off old recordings when SD card is full
 #define CONFIG_SD_CARD_ROLLOFF             0
+// Whether to use Ethernet/FTP
+#define CONFIG_DISABLE_NETWORK             0
 
 
 /*********************************************************

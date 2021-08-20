@@ -4,7 +4,6 @@
 #ifndef _SENSOR_H_
 #define _SENSOR_H_
 
-#include <NativeEthernet.h>
 #include <SdFat.h>
 #include <SPI.h>
 #include <Audio.h>
@@ -12,8 +11,12 @@
 #include <stdint.h>
 
 #include "Watchdog_t4.h"
-#include "ftp.h"
 #include "config.h"
+
+#if ! CONFIG_DISABLE_NETWORK
+#  include <NativeEthernet.h>
+#  include "ftp.h"
+#endif
 
 class Sensor
 {
@@ -101,11 +104,13 @@ private:
    * Each method sets up/configures a necessary subsystem, and returns zero
    * on success. Non-zero return values triggger a panic().
    */
-  int init_ethernet();
   int init_sdcard();
   int init_watchdog();
   int init_serial();
   int init_audio();
+#if ! CONFIG_DISABLE_NETWORK
+  int init_ethernet();
+#endif
 
   /**
    * Display a panic message and error code and halt the processor.
@@ -134,7 +139,6 @@ private:
 // Private internal variables used directly by our sensor
 private:
   WDT_T4<WDT1> m_watchdog;
-  FTP<EthernetClient> m_ftp;
   AudioInputTDM m_tdm;
   AudioRecordQueue m_audio_queue[CONFIG_CHANNEL_COUNT];
   AudioConnection m_audio_patch[CONFIG_CHANNEL_COUNT];
@@ -143,9 +147,13 @@ private:
   unsigned long m_next_recording;
   unsigned long m_first_recording;
 
+#if ! CONFIG_DISABLE_NETWORK
+  FTP<EthernetClient> m_ftp;
+
 // Private internal variables not used by the sensor directly
 private:
   uint8_t m_network_heap[CONFIG_NETWORK_HEAP_SIZE];
+#endif
 
 // Static variables used for audio shenanigans
 private:
