@@ -3,18 +3,18 @@ clang
 %c -Wall -ffunction-sections -fdata-sections -mthumb -mcpu=cortex-m7 -nostdlib -fsingle-precision-constant -mfloat-abi=hard -mfpu=fpv5-d16 -O2
 %cpp -fno-exceptions -felide-constructors -fno-rtti -std=gnu++14 -Wno-error=narrowing -fpermissive -Wall -ffunction-sections -fdata-sections -mthumb -mcpu=cortex-m7 -nostdlib -fsingle-precision-constant -mfloat-abi=hard -mfpu=fpv5-d16 -O2
 
--I/home/caleb/git/julianblanco/teensy-record-and-push-v2/include
--I/home/caleb/git/julianblanco/teensy-record-and-push-v2/src
+-I/home/caleb/github/julianblanco/teensy-record-and-push-v2/include
+-I/home/caleb/github/julianblanco/teensy-record-and-push-v2/src
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/NativeEthernet/src
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/FNET/src
--I/home/caleb/git/julianblanco/teensy-record-and-push-v2/.pio/libdeps/teensy41/SdFat/src
--I/home/caleb/git/julianblanco/teensy-record-and-push-v2/.pio/libdeps/teensy41/Audio
--I/home/caleb/git/julianblanco/teensy-record-and-push-v2/.pio/libdeps/teensy41/Audio/utility
+-I/home/caleb/github/julianblanco/teensy-record-and-push-v2/.pio/libdeps/teensy41/SdFat/src
+-I/home/caleb/github/julianblanco/teensy-record-and-push-v2/.pio/libdeps/teensy41/Audio
+-I/home/caleb/github/julianblanco/teensy-record-and-push-v2/.pio/libdeps/teensy41/Audio/utility
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/SD
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/SD/utility
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/Wire
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/Wire/utility
--I/home/caleb/git/julianblanco/teensy-record-and-push-v2/.pio/libdeps/teensy41/SerialFlash
+-I/home/caleb/github/julianblanco/teensy-record-and-push-v2/.pio/libdeps/teensy41/SerialFlash
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/SPI
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/cores/teensy4
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/ADC
@@ -109,11 +109,11 @@ clang
 -I/home/caleb/.platformio/packages/framework-arduinoteensy/libraries/x10
 -I/home/caleb/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include/c++/5.4.1
 -I/home/caleb/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include/c++/5.4.1/arm-none-eabi
--I/home/caleb/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/arm-none-eabi/5.4.1/include
 -I/home/caleb/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/arm-none-eabi/5.4.1/include-fixed
+-I/home/caleb/.platformio/packages/toolchain-gccarmnoneeabi/lib/gcc/arm-none-eabi/5.4.1/include
 -I/home/caleb/.platformio/packages/toolchain-gccarmnoneeabi/arm-none-eabi/include
 
--DPLATFORMIO=50101
+-DPLATFORMIO=50100
 -D__IMXRT1062__
 -DARDUINO_TEENSY41
 -DUSB_SERIAL

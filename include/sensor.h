@@ -13,11 +13,6 @@
 #include "Watchdog_t4.h"
 #include "config.h"
 
-#if ! CONFIG_DISABLE_NETWORK
-#  include <NativeEthernet.h>
-#  include "ftp.h"
-#endif
-
 class Sensor
 {
 // Public interface methods

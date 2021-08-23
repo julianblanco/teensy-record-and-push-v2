@@ -312,7 +312,7 @@ int Sensor::init_ethernet()
 
   // Ensure we have link
   this->log("[-] waiting for ethernet link...");
-  while( ! m_sd.begin(SdioConfig(FIFO_SDIO)) ) {
+  while( Ethernet.linkStatus() != LinkON ) {
     // Silly, but erases previous message, allows us to give a lil spinny-boi
     this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
     this->log("[%c] waiting for ethernet link...", animation[frame]);
@@ -338,7 +338,7 @@ int Sensor::init_sdcard()
 
   // Wait for an SD card to be inserted
   this->log("[-] waiting for sd card insertion...");
-  while( ! m_sd.begin(SdioConfig(FIFO_SDIO)) ) {
+  while( ! m_sd.begin(CONFIG_SD) ) {
     // Silly, but erases previous message, allows us to give a lil spinny-boi
     this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
     this->log("[%c] waiting for sd card insertion...", animation[frame]);

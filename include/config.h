@@ -19,16 +19,10 @@
 #define CONFIG_SELF_ADDRESS                IPAddress(192,168,42,10)
 // DNS Address (not used)
 #define CONFIG_DNS_ADDRESS                 IPAddress(192,168,42,10)
+// Use SDIO for SD transfer
+#define CONFIG_SD_USE_SDIO                 1
 // SD Card FAT File System Type
 #define CONFIG_SD_FAT_TYPE                 3
-// SD Card SS Pin is defined by the board in some cases
-#ifndef SDCARD_SS_PIN
-#define CONFIG_SD_CS_PIN                   SS
-#else
-#define CONFIG_SD_CS_PIN                   SDCARD_SS_PIN
-#endif
-// SPI Clock Frequency
-#define CONFIG_SPI_CLOCK                   SD_SCK_MHZ(50)
 // Network Heap Size
 #define CONFIG_NETWORK_HEAP_SIZE           (1024*120)
 // Watchdog warning timeout (seconds, 1->128)
@@ -51,8 +45,23 @@
 // Roll off old recordings when SD card is full
 #define CONFIG_SD_CARD_ROLLOFF             0
 // Whether to use Ethernet/FTP
-#define CONFIG_DISABLE_NETWORK             0
+#define CONFIG_DISABLE_NETWORK             1
 
+#if CONFIG_SD_USE_SDIO
+// FIFO is faster than DMA according to documentation
+#  define CONFIG_SD                        SdioConfig(FIFO_SDIO)
+#else
+// SD Card SS Pin is defined by the board in some cases
+#  ifndef SDCARD_SS_PIN
+#    define CONFIG_SD_CS_PIN               SS
+#  else
+#    define CONFIG_SD_CS_PIN               SDCARD_SS_PIN
+#  endif
+// SPI Clock Frequency
+#  define CONFIG_SPI_CLOCK                 SD_SCK_MHZ(50)
+// Arguments to begin()
+#  define CONFIG_SD                        SdSpiConfig(CONFIG_SD_CS_PIN, DEDICATED_SPI, CONFIG_SPI_CLOCK)
+#endif
 
 /*********************************************************
 
