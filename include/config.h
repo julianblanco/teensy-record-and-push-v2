@@ -5,7 +5,7 @@
 #define _SENSOR_CONFIG_H_
 
 // Number of audio channels to record
-#define CONFIG_CHANNEL_COUNT               1
+#define CONFIG_CHANNEL_COUNT               6
 // Name of the directory to store an individual recording; formatted with a single integer
 #define CONFIG_RECORDING_DIRECTORY         "/rec%d"
 // Path to an individual channel recording including the recording index and the channel index
@@ -20,7 +20,7 @@
 // DNS Address (not used)
 #define CONFIG_DNS_ADDRESS                 IPAddress(192,168,42,10)
 // Use SDIO for SD transfer
-#define CONFIG_SD_USE_SDIO                 0
+#define CONFIG_SD_USE_SDIO                 1
 // SD Card FAT File System Type
 #define CONFIG_SD_FAT_TYPE                 3
 // Network Heap Size
@@ -34,9 +34,9 @@
 // LED used to indicate sampling
 #define CONFIG_LED                         LED_BUILTIN
 // Length of time to sample (milliseconds)
-#define CONFIG_RECORDING_LENGTH               5000
+#define CONFIG_RECORDING_LENGTH            25000
 // Length of time to sleep between sampling (milliseconds)
-#define CONFIG_HOLD_LENGTH                 25000
+#define CONFIG_HOLD_LENGTH                 5000
 // FTP credentials for sample uploads
 #define CONFIG_FTP_USER                    "ftpuser"
 #define CONFIG_FTP_PASSWORD                "just4munk"
@@ -109,10 +109,20 @@
   AudioConnection(m_tdm, 2, m_audio_queue[1], 0), \
   AudioConnection(m_tdm, 4, m_audio_queue[2], 0), \
   AudioConnection(m_tdm, 6, m_audio_queue[3], 0)
+#elif CONFIG_CHANNEL_COUNT == 6
+#define CONFIG_AUDIO_PATCH_INIT \
+  AudioConnection(m_tdm, 0, m_audio_queue[0], 0), \
+  AudioConnection(m_tdm, 2, m_audio_queue[1], 0), \
+  AudioConnection(m_tdm, 4, m_audio_queue[2], 0), \
+  AudioConnection(m_tdm, 6, m_audio_queue[3], 0), \
+  AudioConnection(m_tdm, 8, m_audio_queue[4], 0), \
+  AudioConnection(m_tdm, 10, m_audio_queue[5], 0)
+#else
+#error "invalid channel count (expected one of [1,2,4,6])"
 #endif
 
 // Number of samples to collect to meet recording length (floor'd)
-#define CONFIG_RECORDING_SAMPLE_COUNT ((size_t)( ((CONFIG_RECORDING_LENGTH / 1000) * 44100) / 256 ))
+#define CONFIG_RECORDING_SAMPLE_COUNT ((size_t)( ((CONFIG_RECORDING_LENGTH / 1000) * 44100) / 128 ))
 #define CONFIG_RECORDING_TOTAL_BLOCKS ((CONFIG_CHANNEL_COUNT * (CONFIG_RECORDING_SAMPLE_COUNT*256) * 2) / 512)
 
 #endif

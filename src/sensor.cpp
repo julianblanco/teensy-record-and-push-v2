@@ -42,6 +42,7 @@ void Sensor::run()
 
       // Read the data and update counters
       memcpy(&m_audio_data[ch][m_audio_offset[ch]], m_audio_queue[ch].readBuffer(), 256);
+      m_audio_queue[ch].freeBuffer();
       m_audio_offset[ch] += 256;
       m_samples_collected[ch] += 1;
 
@@ -49,7 +50,7 @@ void Sensor::run()
       if( m_audio_offset[ch] < 4096 ) continue;
 
       // Flush block to disk
-      data_file[ch].write(m_audio_data[ch], 4096);
+      data_file[ch].write(&m_audio_data[ch][0], 4096);
 
       // Reset counter
       m_audio_offset[ch] = 0;
