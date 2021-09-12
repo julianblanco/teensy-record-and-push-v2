@@ -463,10 +463,13 @@ int Sensor::init_audio()
 
   // Enable differential mode
   m_audio_control.adcDifferentialMode();
+  m_audio_control.adcHighPassFilterEnable();
 
   // Set codec input and output levels
   m_audio_control.volume(1);
   m_audio_control.inputLevel(15.85);
+
+  delay(1000);
 
   this->log("[+] initialized audio controller\n");
 
