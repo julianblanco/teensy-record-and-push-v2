@@ -14,8 +14,8 @@ void Sensor::run()
   char recording_dir[256]; // path to the recording directory
   CONFIG_SD_FILE data_file[CONFIG_CHANNEL_COUNT]; // Open SD card file object
   byte sd_buffer[512];
-  size_t collected_buffers = 0;
   unsigned long time_stopped;
+  int done = 0;
 
   // Initialize recording directory and data files and start
   // audio sampling queues.
@@ -25,24 +25,38 @@ void Sensor::run()
   {
     m_watchdog.feed();
 
+    // Reset done counter
+    done = 0;
+
     // Sample all channels and write to disk
     for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
-      while( m_audio_queue[ch].available() < 2 );
 
-      // Grab two blocks at a time to line up with SD write sizes and maximize
-      // write efficiency.
-      for(int i = 0; i < 2; ++i) {
-        memcpy(sd_buffer + i*256, m_audio_queue[ch].readBuffer(), 256);
-        m_audio_queue[ch].freeBuffer();
+      // Check if sampling is complete for this channel
+      if( m_samples_collected[ch] >= CONFIG_RECORDING_SAMPLE_COUNT ) {
+        done += 1;
+        continue;
       }
 
-      data_file[ch].write(sd_buffer, 512);
+      // Check if data is available
+      if( ! m_audio_queue[ch].available() ) continue;
+
+      // Read the data and update counters
+      memcpy(&m_audio_data[ch][m_audio_offset[ch]], m_audio_queue[ch].readBuffer(), 256);
+      m_audio_offset[ch] += 256;
+      m_samples_collected[ch] += 1;
+
+      // Is a block ready to flush?
+      if( m_audio_offset[ch] < 4096 ) continue;
+
+      // Flush block to disk
+      data_file[ch].write(m_audio_data[ch], 4096);
+
+      // Reset counter
+      m_audio_offset[ch] = 0;
     }
 
-    collected_buffers += 1;
-
-    // Collected enough samples to meet recording length
-    if( collected_buffers >= CONFIG_RECORDING_SAMPLE_COUNT ) {
+    // Are all channels done?
+    if( done == CONFIG_CHANNEL_COUNT ) {
 
       // Record the time we should have stopped, since upload may take a couple seconds
       // if network latency is high.
@@ -50,6 +64,13 @@ void Sensor::run()
 
       // Close files; we are done writing
       for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ++ch) {
+
+        // Write any non-4096-aligned data
+        if( m_audio_offset[ch] != 0 ) {
+          data_file[ch].write(m_audio_data[ch], m_audio_offset[ch]);
+        }
+
+        // Close the file
         data_file[ch].close();
       }
 
@@ -69,9 +90,6 @@ void Sensor::run()
 
       // Restart recording
       this->start_sample(recording_dir, 256, data_file);
-
-      // Reset number of collected buffers
-      collected_buffers = 0;
     }
 
   }
@@ -203,6 +221,8 @@ void Sensor::start_sample(char* recording_dir, size_t length, CONFIG_SD_FILE* da
     if( ! data_file[ch].open(channel_path, FILE_WRITE) ) {
       this->panic("failed to open channel file", -1);
     }
+    m_audio_offset[ch] = 0;
+    m_samples_collected[ch] = 0;
   }
 }
 

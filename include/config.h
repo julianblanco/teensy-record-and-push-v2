@@ -5,7 +5,7 @@
 #define _SENSOR_CONFIG_H_
 
 // Number of audio channels to record
-#define CONFIG_CHANNEL_COUNT               4
+#define CONFIG_CHANNEL_COUNT               1
 // Name of the directory to store an individual recording; formatted with a single integer
 #define CONFIG_RECORDING_DIRECTORY         "/rec%d"
 // Path to an individual channel recording including the recording index and the channel index
@@ -20,7 +20,7 @@
 // DNS Address (not used)
 #define CONFIG_DNS_ADDRESS                 IPAddress(192,168,42,10)
 // Use SDIO for SD transfer
-#define CONFIG_SD_USE_SDIO                 1
+#define CONFIG_SD_USE_SDIO                 0
 // SD Card FAT File System Type
 #define CONFIG_SD_FAT_TYPE                 3
 // Network Heap Size
