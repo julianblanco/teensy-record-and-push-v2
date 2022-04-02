@@ -1,0 +1,299 @@
+\hypertarget{ftp_8h_source}{}\doxysection{ftp.\+h}
+\label{ftp_8h_source}\index{src/ftp.h@{src/ftp.h}}
+\mbox{\hyperlink{ftp_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#ifndef \_\_FTP\_H\_}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#define \_\_FTP\_H\_}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <string.h>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <stdlib.h>}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#include <stdio.h>}}
+\DoxyCodeLine{8 }
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include "{}IPAddress.h"{}}}
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#include "{}Arduino.h"{}}}
+\DoxyCodeLine{11 }
+\DoxyCodeLine{12 \textcolor{preprocessor}{\#define FTP\_BANNER\_LEN 128}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{\#define FTP\_ADDR\_LEN 32}}
+\DoxyCodeLine{14 \textcolor{preprocessor}{\#define FTP\_MODE\_READ 0}}
+\DoxyCodeLine{15 \textcolor{preprocessor}{\#define FTP\_MODE\_WRITE 1}}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17 \textcolor{keyword}{template}<\textcolor{keyword}{typename} Client>}
+\DoxyCodeLine{18 \textcolor{keyword}{class }\mbox{\hyperlink{class_f_t_p}{FTP}}}
+\DoxyCodeLine{19 \{}
+\DoxyCodeLine{20 \textcolor{keyword}{public}:}
+\DoxyCodeLine{21   \mbox{\hyperlink{class_f_t_p_aa942ae596d3666d0ec51ce5af3c3c652}{FTP}}() : m\_authed(false), m\_server(), m\_data(), m\_mode(0) \{\};}
+\DoxyCodeLine{22   \mbox{\hyperlink{class_f_t_p_a61f664d1169776a8de18596fd8aa89f2}{\string~FTP}}() \{}
+\DoxyCodeLine{23     this-\/>\mbox{\hyperlink{class_f_t_p_aa6faaf07cd6125d45fbd8efacec2d0af}{disconnect}}();}
+\DoxyCodeLine{24   \};}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26   \textcolor{comment}{// Connect to the given server. This closes any active server or data connections}}
+\DoxyCodeLine{27   \textcolor{keywordtype}{int} \mbox{\hyperlink{class_f_t_p_a9807944feede58f933430b34ae3b03c2}{connect}}(IPAddress host, uint16\_t port)}
+\DoxyCodeLine{28   \{}
+\DoxyCodeLine{29     \textcolor{keywordtype}{int} code;}
+\DoxyCodeLine{30 }
+\DoxyCodeLine{31     \textcolor{comment}{// Ensure we are disconnected}}
+\DoxyCodeLine{32     this-\/>\mbox{\hyperlink{class_f_t_p_aa6faaf07cd6125d45fbd8efacec2d0af}{disconnect}}();}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34     \textcolor{keywordflow}{if} ( this-\/>m\_server.connect(host, port) <= 0 ) \{}
+\DoxyCodeLine{35       \textcolor{keywordflow}{return} -\/1;}
+\DoxyCodeLine{36     \}}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{38     \textcolor{comment}{// Receive the FTP banner string}}
+\DoxyCodeLine{39     this-\/>recvline(this-\/>m\_banner, \mbox{\hyperlink{ftp_8h_a1f988fb2f606ff3ba9eb401ebbc3e441}{FTP\_BANNER\_LEN}});}
+\DoxyCodeLine{40     code = atoi(this-\/>m\_banner);}
+\DoxyCodeLine{41     \textcolor{keywordflow}{if}( code != 220 ) \{}
+\DoxyCodeLine{42       this-\/>m\_server.stop();}
+\DoxyCodeLine{43       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{44     \}}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46     \textcolor{comment}{// Save server address}}
+\DoxyCodeLine{47     this-\/>m\_server\_addr = host;}
+\DoxyCodeLine{48 }
+\DoxyCodeLine{49     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{50   \}}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52   \textcolor{comment}{// Disconnect from the server}}
+\DoxyCodeLine{53   \textcolor{keywordtype}{void} \mbox{\hyperlink{class_f_t_p_aa6faaf07cd6125d45fbd8efacec2d0af}{disconnect}}()}
+\DoxyCodeLine{54   \{}
+\DoxyCodeLine{55     \textcolor{keywordflow}{if}( this-\/>m\_server.connected() ) \{}
+\DoxyCodeLine{56       this-\/>sendline(\textcolor{stringliteral}{"{}QUIT"{}});}
+\DoxyCodeLine{57       this-\/>m\_server.stop();}
+\DoxyCodeLine{58     \}}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60     \textcolor{keywordflow}{if}( this-\/>m\_data.connected() )}
+\DoxyCodeLine{61       this-\/>m\_data.stop();}
+\DoxyCodeLine{62 }
+\DoxyCodeLine{63     m\_authed = \textcolor{keyword}{false};}
+\DoxyCodeLine{64   \}}
+\DoxyCodeLine{65 }
+\DoxyCodeLine{66   \textcolor{comment}{// Authenticate with the server; you must already be connected}}
+\DoxyCodeLine{67   \textcolor{keywordtype}{int} \mbox{\hyperlink{class_f_t_p_a2db7f0e47af14b893809d3ae36e3658b}{auth}}(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* user, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* password)}
+\DoxyCodeLine{68   \{}
+\DoxyCodeLine{69     \textcolor{keywordtype}{char} buffer[256];}
+\DoxyCodeLine{70     \textcolor{keywordtype}{int} code;}
+\DoxyCodeLine{71 }
+\DoxyCodeLine{72     \textcolor{keywordflow}{if}( m\_authed ) \{}
+\DoxyCodeLine{73       \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{74     \}}
+\DoxyCodeLine{75 }
+\DoxyCodeLine{76     \textcolor{comment}{// Format and send user}}
+\DoxyCodeLine{77     snprintf(buffer, 256, \textcolor{stringliteral}{"{}USER \%s"{}}, user);}
+\DoxyCodeLine{78     this-\/>sendline(buffer);}
+\DoxyCodeLine{79 }
+\DoxyCodeLine{80     \textcolor{comment}{// Check response code}}
+\DoxyCodeLine{81     this-\/>recvline(buffer, 256);}
+\DoxyCodeLine{82     code = atoi(buffer);}
+\DoxyCodeLine{83     \textcolor{keywordflow}{if}( code != 331 ) \{}
+\DoxyCodeLine{84       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{85     \}}
+\DoxyCodeLine{86 }
+\DoxyCodeLine{87     \textcolor{comment}{// Format and send password}}
+\DoxyCodeLine{88     snprintf(buffer, 256, \textcolor{stringliteral}{"{}PASS \%s"{}}, password);}
+\DoxyCodeLine{89     this-\/>sendline(buffer);}
+\DoxyCodeLine{90 }
+\DoxyCodeLine{91     \textcolor{comment}{// Check response code}}
+\DoxyCodeLine{92     this-\/>recvline(buffer, 256);}
+\DoxyCodeLine{93     code = atoi(buffer);}
+\DoxyCodeLine{94     \textcolor{keywordflow}{if}( code != 230 ) \{}
+\DoxyCodeLine{95       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{96     \}}
+\DoxyCodeLine{97 }
+\DoxyCodeLine{98     this-\/>sendline(\textcolor{stringliteral}{"{}TYPE I"{}});}
+\DoxyCodeLine{99     this-\/>recvline(buffer, 256);}
+\DoxyCodeLine{100     code = atoi(buffer);}
+\DoxyCodeLine{101     \textcolor{keywordflow}{if}( code != 200 ) \{}
+\DoxyCodeLine{102       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{103     \}}
+\DoxyCodeLine{104 }
+\DoxyCodeLine{105     \textcolor{comment}{// SUCCESS! :)}}
+\DoxyCodeLine{106     this-\/>m\_authed = \textcolor{keyword}{true};}
+\DoxyCodeLine{107 }
+\DoxyCodeLine{108     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{109   \}}
+\DoxyCodeLine{110 }
+\DoxyCodeLine{111   \textcolor{comment}{// Open the given file in the specified mode}}
+\DoxyCodeLine{112   \textcolor{keywordtype}{int} \mbox{\hyperlink{class_f_t_p_a2f103f27dfbc5bace7747af1e893bd91}{open}}(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* path, \textcolor{keywordtype}{int} mode)}
+\DoxyCodeLine{113   \{}
+\DoxyCodeLine{114     \textcolor{keywordtype}{char} buffer[256];}
+\DoxyCodeLine{115     uint16\_t data\_port = 0;}
+\DoxyCodeLine{116     \textcolor{keywordtype}{int} code;}
+\DoxyCodeLine{117 }
+\DoxyCodeLine{118     \textcolor{comment}{// Only one open file at a time}}
+\DoxyCodeLine{119     \textcolor{keywordflow}{if}( this-\/>m\_mode != 0 ) \{}
+\DoxyCodeLine{120       \textcolor{keywordflow}{return} -\/1;}
+\DoxyCodeLine{121     \}}
+\DoxyCodeLine{122 }
+\DoxyCodeLine{123     \textcolor{keywordflow}{if}( mode != \mbox{\hyperlink{ftp_8h_a8d1ff1f37e272e7592a811c564a8fc6f}{FTP\_MODE\_WRITE}} ) \{}
+\DoxyCodeLine{124       \textcolor{keywordflow}{return} -\/42;}
+\DoxyCodeLine{125     \}}
+\DoxyCodeLine{126 }
+\DoxyCodeLine{127     \textcolor{comment}{// Enter passive mode}}
+\DoxyCodeLine{128     this-\/>sendline(\textcolor{stringliteral}{"{}PASV"{}});}
+\DoxyCodeLine{129     this-\/>recvline(buffer, 256);}
+\DoxyCodeLine{130     code = atoi(buffer);}
+\DoxyCodeLine{131 }
+\DoxyCodeLine{132     \textcolor{comment}{// Ensure we entered passive mode}}
+\DoxyCodeLine{133     \textcolor{keywordflow}{if}( code != 227 ) \{}
+\DoxyCodeLine{134       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{135     \}}
+\DoxyCodeLine{136 }
+\DoxyCodeLine{137     \textcolor{comment}{// Parse out port number; assume same server address}}
+\DoxyCodeLine{138     \textcolor{keywordflow}{for}(\textcolor{keywordtype}{char}* tok = strtok(buffer, \textcolor{stringliteral}{"{}(,"{}}); tok != NULL; tok = strtok(NULL, \textcolor{stringliteral}{"{}(,"{}})) \{}
+\DoxyCodeLine{139       data\_port = (data\_port << 8) | (atoi(tok) \& 0xFF);}
+\DoxyCodeLine{140     \}}
+\DoxyCodeLine{141 }
+\DoxyCodeLine{142     \textcolor{comment}{// Ensure my above "{}clever"{} parsing is accurate... :cheese:}}
+\DoxyCodeLine{143     \textcolor{keywordflow}{if}( data\_port < 10000 || data\_port > 10100 ) \{}
+\DoxyCodeLine{144       \textcolor{keywordflow}{return} -\/2;}
+\DoxyCodeLine{145     \}}
+\DoxyCodeLine{146 }
+\DoxyCodeLine{147     \textcolor{comment}{// Connect to data port}}
+\DoxyCodeLine{148     \textcolor{keywordflow}{while} ( ! this-\/>m\_data.connected() ) \{}
+\DoxyCodeLine{149       this-\/>m\_data.connect(this-\/>m\_server\_addr, data\_port);}
+\DoxyCodeLine{150       delay(100);}
+\DoxyCodeLine{151     \}}
+\DoxyCodeLine{152 }
+\DoxyCodeLine{153     \textcolor{comment}{// Tell the server where to store the data}}
+\DoxyCodeLine{154     snprintf(buffer, 256, \textcolor{stringliteral}{"{}STOR \%s"{}}, path);}
+\DoxyCodeLine{155     this-\/>sendline(buffer);}
+\DoxyCodeLine{156 }
+\DoxyCodeLine{157     this-\/>recvline(buffer, 256);}
+\DoxyCodeLine{158     code = atoi(buffer);}
+\DoxyCodeLine{159     \textcolor{keywordflow}{if}( code != 150 ) \{}
+\DoxyCodeLine{160       this-\/>m\_data.stop();}
+\DoxyCodeLine{161       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{162     \}}
+\DoxyCodeLine{163 }
+\DoxyCodeLine{164     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{165   \}}
+\DoxyCodeLine{166 }
+\DoxyCodeLine{167   \textcolor{comment}{// Close the data connection}}
+\DoxyCodeLine{168   \textcolor{keywordtype}{int} \mbox{\hyperlink{class_f_t_p_ac82fc11a6f6fb55ffb527ef3baff7b2b}{close}}()}
+\DoxyCodeLine{169   \{}
+\DoxyCodeLine{170     \textcolor{keywordtype}{char} buffer[256];}
+\DoxyCodeLine{171     \textcolor{keywordtype}{int} code;}
+\DoxyCodeLine{172 }
+\DoxyCodeLine{173     \textcolor{keywordflow}{if}( !this-\/>m\_data.connected() ) \{}
+\DoxyCodeLine{174       \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{175     \}}
+\DoxyCodeLine{176 }
+\DoxyCodeLine{177     \textcolor{comment}{// Close the data connection}}
+\DoxyCodeLine{178     this-\/>m\_data.stop();}
+\DoxyCodeLine{179 }
+\DoxyCodeLine{180     \textcolor{comment}{// Receive result from FTP}}
+\DoxyCodeLine{181     this-\/>recvline(buffer, 256);}
+\DoxyCodeLine{182     code = atoi(buffer);}
+\DoxyCodeLine{183 }
+\DoxyCodeLine{184     \textcolor{keywordflow}{if}( code < 200 || code >= 300 ) \{}
+\DoxyCodeLine{185       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{186     \}}
+\DoxyCodeLine{187 }
+\DoxyCodeLine{188     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{189   \}}
+\DoxyCodeLine{190 }
+\DoxyCodeLine{191   \textcolor{comment}{// Read the given number of bytes from the opened file}}
+\DoxyCodeLine{192   \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{class_f_t_p_a1f5cd356a274b57ab2c26e051d4de914}{read}}(\textcolor{keywordtype}{char}* buffer, \textcolor{keywordtype}{size\_t} count);}
+\DoxyCodeLine{193 }
+\DoxyCodeLine{194   \textcolor{comment}{// Write the given number of bytes to the opened file}}
+\DoxyCodeLine{195   \textcolor{keywordtype}{size\_t} \mbox{\hyperlink{class_f_t_p_a9ae4d8d21e275aa203898eb23420ddf4}{write}}(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* buffer, \textcolor{keywordtype}{size\_t} len)}
+\DoxyCodeLine{196   \{}
+\DoxyCodeLine{197     \textcolor{keywordtype}{size\_t} idx = 0;}
+\DoxyCodeLine{198     \textcolor{keywordtype}{size\_t} count = 0;}
+\DoxyCodeLine{199 }
+\DoxyCodeLine{200     \textcolor{keywordflow}{while}( idx < len ) \{}
+\DoxyCodeLine{201       count = this-\/>m\_data.write(\&buffer[idx], len-\/idx);}
+\DoxyCodeLine{202       idx += count;}
+\DoxyCodeLine{203     \}}
+\DoxyCodeLine{204 }
+\DoxyCodeLine{205     \textcolor{keywordflow}{return} idx;}
+\DoxyCodeLine{206   \}}
+\DoxyCodeLine{207 }
+\DoxyCodeLine{208   \textcolor{comment}{// Create a new directory}}
+\DoxyCodeLine{209   \textcolor{keywordtype}{int} \mbox{\hyperlink{class_f_t_p_ab72ede1ca31fe22146d4f0b57e309bc5}{mkdir}}(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* path)}
+\DoxyCodeLine{210   \{}
+\DoxyCodeLine{211     \textcolor{keywordtype}{char} buffer[256];}
+\DoxyCodeLine{212     \textcolor{keywordtype}{int} code;}
+\DoxyCodeLine{213 }
+\DoxyCodeLine{214     snprintf(buffer, 256, \textcolor{stringliteral}{"{}MKD \%s"{}}, path);}
+\DoxyCodeLine{215     this-\/>sendline(buffer);}
+\DoxyCodeLine{216 }
+\DoxyCodeLine{217     this-\/>recvline(buffer, 256);}
+\DoxyCodeLine{218     code = atoi(buffer);}
+\DoxyCodeLine{219     \textcolor{keywordflow}{if} ( code != 257 ) \{}
+\DoxyCodeLine{220       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{221     \}}
+\DoxyCodeLine{222 }
+\DoxyCodeLine{223     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{224   \}}
+\DoxyCodeLine{225 }
+\DoxyCodeLine{226   \textcolor{keywordtype}{int} \mbox{\hyperlink{class_f_t_p_aeca7da0206984ebc11801af935597aca}{chdir}}(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* path)}
+\DoxyCodeLine{227   \{}
+\DoxyCodeLine{228     \textcolor{keywordtype}{char} buffer[256];}
+\DoxyCodeLine{229     \textcolor{keywordtype}{int} code;}
+\DoxyCodeLine{230 }
+\DoxyCodeLine{231     snprintf(buffer, 256, \textcolor{stringliteral}{"{}CWD \%s"{}}, path);}
+\DoxyCodeLine{232     this-\/>sendline(buffer);}
+\DoxyCodeLine{233 }
+\DoxyCodeLine{234     this-\/>recvline(buffer, 256);}
+\DoxyCodeLine{235     code = atoi(buffer);}
+\DoxyCodeLine{236     \textcolor{keywordflow}{if} ( code != 250 ) \{}
+\DoxyCodeLine{237       \textcolor{keywordflow}{return} code;}
+\DoxyCodeLine{238     \}}
+\DoxyCodeLine{239 }
+\DoxyCodeLine{240     \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{241   \}}
+\DoxyCodeLine{242 }
+\DoxyCodeLine{243 \textcolor{keyword}{private}:}
+\DoxyCodeLine{244 }
+\DoxyCodeLine{245   \textcolor{comment}{// Read a line from the server and return the length of the string}}
+\DoxyCodeLine{246   \textcolor{comment}{// If the line is longer than the buffer size, truncate the line to}}
+\DoxyCodeLine{247   \textcolor{comment}{// the buffer size, but receive until a new line character. The new}}
+\DoxyCodeLine{248   \textcolor{comment}{// line character is not stripped.}}
+\DoxyCodeLine{249   \textcolor{keywordtype}{size\_t} recvline(\textcolor{keywordtype}{char}* buffer, \textcolor{keywordtype}{size\_t} size)}
+\DoxyCodeLine{250   \{}
+\DoxyCodeLine{251     \textcolor{keywordtype}{char} lastch = 0;}
+\DoxyCodeLine{252     \textcolor{keywordtype}{size\_t} idx = 0;}
+\DoxyCodeLine{253 }
+\DoxyCodeLine{254     \textcolor{keywordflow}{while}( lastch != \textcolor{charliteral}{'\(\backslash\)n'} ) \{}
+\DoxyCodeLine{255       \textcolor{keywordflow}{if}( this-\/>m\_server.available() ) \{}
+\DoxyCodeLine{256         lastch = this-\/>m\_server.read();}
+\DoxyCodeLine{257         \textcolor{keywordflow}{if}( idx < (size-\/1) ) \{}
+\DoxyCodeLine{258           buffer[idx] = lastch;}
+\DoxyCodeLine{259           idx += 1;}
+\DoxyCodeLine{260         \}}
+\DoxyCodeLine{261       \}}
+\DoxyCodeLine{262     \}}
+\DoxyCodeLine{263 }
+\DoxyCodeLine{264     buffer[idx] = 0;}
+\DoxyCodeLine{265 }
+\DoxyCodeLine{266     \textcolor{keywordflow}{return} idx;}
+\DoxyCodeLine{267   \}}
+\DoxyCodeLine{268 }
+\DoxyCodeLine{269   \textcolor{keywordtype}{void} sendall(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* buffer, \textcolor{keywordtype}{size\_t} len)}
+\DoxyCodeLine{270   \{}
+\DoxyCodeLine{271     \textcolor{keywordtype}{size\_t} idx = 0;}
+\DoxyCodeLine{272     \textcolor{keywordtype}{size\_t} count = 0;}
+\DoxyCodeLine{273     \textcolor{keywordflow}{while}( idx < len ) \{}
+\DoxyCodeLine{274       count = this-\/>m\_server.write(\&buffer[idx], len-\/idx);}
+\DoxyCodeLine{275       idx += count;}
+\DoxyCodeLine{276     \}}
+\DoxyCodeLine{277   \}}
+\DoxyCodeLine{278 }
+\DoxyCodeLine{279   \textcolor{keywordtype}{void} sendline(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* buffer)}
+\DoxyCodeLine{280   \{}
+\DoxyCodeLine{281     sendall(buffer, strlen(buffer));}
+\DoxyCodeLine{282     sendall(\textcolor{stringliteral}{"{}\(\backslash\)r\(\backslash\)n"{}}, 2);}
+\DoxyCodeLine{283   \}}
+\DoxyCodeLine{284 }
+\DoxyCodeLine{285   \textcolor{keywordtype}{bool} m\_authed;}
+\DoxyCodeLine{286   Client m\_server;}
+\DoxyCodeLine{287   Client m\_data;}
+\DoxyCodeLine{288   \textcolor{keywordtype}{int} m\_mode;}
+\DoxyCodeLine{289   \textcolor{keywordtype}{char} m\_banner[\mbox{\hyperlink{ftp_8h_a1f988fb2f606ff3ba9eb401ebbc3e441}{FTP\_BANNER\_LEN}}];}
+\DoxyCodeLine{290   IPAddress m\_server\_addr;}
+\DoxyCodeLine{291 \};}
+\DoxyCodeLine{292 }
+\DoxyCodeLine{293 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

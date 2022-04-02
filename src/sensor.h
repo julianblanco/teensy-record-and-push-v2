@@ -139,9 +139,11 @@ private:
   AudioRecordQueue m_audio_queue[CONFIG_CHANNEL_COUNT];
   AudioConnection m_audio_patch[CONFIG_CHANNEL_COUNT];
   AudioControlCS42448 m_audio_control;
+  AudioSynthWaveformSine   sine1;          //xy=49,351
   CONFIG_SD_CONTROLLER m_sd;
   unsigned long m_next_recording;
   unsigned long m_first_recording;
+  unsigned int recordmode;
 
 // Private internal variables not used by the sensor directly
 private:

@@ -1,0 +1,64 @@
+\hypertarget{class_sensor}{}\doxysection{Sensor Class Reference}
+\label{class_sensor}\index{Sensor@{Sensor}}
+
+
+{\ttfamily \#include $<$sensor.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_sensor_a342d6d11ef572c8cba92cb76fb1a294b}{Sensor}} ()
+\item 
+\mbox{\hyperlink{class_sensor_aee8c70e7ef05ce65e7ee33686b5d7db2}{$\sim$\+Sensor}} ()
+\item 
+int \mbox{\hyperlink{class_sensor_a13c10290b5d69df0f8a97a4b78cf805f}{setup}} ()
+\item 
+void \mbox{\hyperlink{class_sensor_a89113c83e2a0d008a2c3083113604088}{run}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_sensor_a342d6d11ef572c8cba92cb76fb1a294b}\label{class_sensor_a342d6d11ef572c8cba92cb76fb1a294b}} 
+\index{Sensor@{Sensor}!Sensor@{Sensor}}
+\index{Sensor@{Sensor}!Sensor@{Sensor}}
+\doxysubsubsection{\texorpdfstring{Sensor()}{Sensor()}}
+{\footnotesize\ttfamily Sensor\+::\+Sensor (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_sensor_aee8c70e7ef05ce65e7ee33686b5d7db2}\label{class_sensor_aee8c70e7ef05ce65e7ee33686b5d7db2}} 
+\index{Sensor@{Sensor}!````~Sensor@{$\sim$Sensor}}
+\index{````~Sensor@{$\sim$Sensor}!Sensor@{Sensor}}
+\doxysubsubsection{\texorpdfstring{$\sim$Sensor()}{~Sensor()}}
+{\footnotesize\ttfamily Sensor\+::$\sim$\+Sensor (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_sensor_a89113c83e2a0d008a2c3083113604088}\label{class_sensor_a89113c83e2a0d008a2c3083113604088}} 
+\index{Sensor@{Sensor}!run@{run}}
+\index{run@{run}!Sensor@{Sensor}}
+\doxysubsubsection{\texorpdfstring{run()}{run()}}
+{\footnotesize\ttfamily void Sensor\+::run (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Execute the main loop for the sensor.
+
+This will begin sampling and uploading results as needed/available. \mbox{\Hypertarget{class_sensor_a13c10290b5d69df0f8a97a4b78cf805f}\label{class_sensor_a13c10290b5d69df0f8a97a4b78cf805f}} 
+\index{Sensor@{Sensor}!setup@{setup}}
+\index{setup@{setup}!Sensor@{Sensor}}
+\doxysubsubsection{\texorpdfstring{setup()}{setup()}}
+{\footnotesize\ttfamily int Sensor\+::setup (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+Setup the sensor
+
+This method will initialize all needed subsystems including, but not limited to\+:
+\begin{DoxyItemize}
+\item Ethernet
+\item \mbox{\hyperlink{class_f_t_p}{FTP}}
+\item Watchdog timer
+\item Timers
+\item Serial 
+\end{DoxyItemize}
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{sensor_8h}{sensor.\+h}}\item 
+src/\mbox{\hyperlink{sensor_8cpp}{sensor.\+cpp}}\end{DoxyCompactItemize}

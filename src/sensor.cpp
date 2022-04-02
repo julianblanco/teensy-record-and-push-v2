@@ -35,8 +35,14 @@ void Sensor::run()
         memcpy(sd_buffer + i*256, m_audio_queue[ch].readBuffer(), 256);
         m_audio_queue[ch].freeBuffer();
       }
-
-      data_file[ch].write(sd_buffer, 512);
+      if(recordmode == SDrecord)data_file[ch].write(sd_buffer, 512);
+      if(recordmode == USBrecord)Serial.write(sd_buffer);
+      if(recordmode == UDPrecord)
+      {
+        Udp.beginPacket(MyServer, 2000);   // to udpsink
+        Udp.write(sd_buffer, 512);
+        Udp.endPacket();
+        }
     }
 
     collected_buffers += 1;
@@ -48,11 +54,12 @@ void Sensor::run()
       // if network latency is high.
       time_stopped = millis();
 
+    if(recordmode == SDrecord){
       // Close files; we are done writing
       for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ++ch) {
         data_file[ch].close();
       }
-
+    }
       // Stop the sampling process and flush queues
       this->stop_sample(recording_dir);
 
@@ -81,16 +88,17 @@ void Sensor::run()
 int Sensor::setup()
 {
   int code = 0;
-
+  int recordmode = RECORD_TYPE;
   code = this->init_serial();
   if( code != 0 ) this->panic("serial initialization failed", code);
 
   this->log("[-] waiting five seconds for startup sequence...");
   delay(5000);
 
+  if(recordmode == SDrecord){
   code = this->init_sdcard();
   if( code != 0 ) this->panic("sdcard initialization failed", code);
-
+  }
   code = this->init_ethernet();
   if( code != 0 ) this->panic("ethernet initialization failed", code);
 
@@ -225,63 +233,63 @@ void Sensor::stop_sample(const char* recording_dir)
     m_audio_queue[ch].clear();
   }
 
-  // Connect to the FTP server
-  code = m_ftp.connect(CONFIG_FTP_ADDRESS, CONFIG_FTP_PORT);
-  if( code != 0 ) {
-    this->log("[!] failed to connect to ftp server: %d\n", code);
-    return;
-  }
+  // // Connect to the FTP server
+  // code = m_ftp.connect(CONFIG_FTP_ADDRESS, CONFIG_FTP_PORT);
+  // if( code != 0 ) {
+  //   this->log("[!] failed to connect to ftp server: %d\n", code);
+  //   return;
+  // }
 
-  // Authenticate to FTP server
-  code = m_ftp.auth(CONFIG_FTP_USER, CONFIG_FTP_PASSWORD);
-  if( code != 0 ) {
-    m_ftp.disconnect();
-    this->log("[!] ftp authentication failed: %d\n", code);
-    return;
-  }
+  // // Authenticate to FTP server
+  // code = m_ftp.auth(CONFIG_FTP_USER, CONFIG_FTP_PASSWORD);
+  // if( code != 0 ) {
+  //   m_ftp.disconnect();
+  //   this->log("[!] ftp authentication failed: %d\n", code);
+  //   return;
+  // }
 
-  // Ensure the directory exists in the FTP server
-  m_ftp.mkdir(recording_dir);
+  // // Ensure the directory exists in the FTP server
+  // m_ftp.mkdir(recording_dir);
 
-  // Now, upload the data
-  for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
+  // // Now, upload the data
+  // for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
 
-    // Upload the file to the FTP server
-    snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
+  //   // Upload the file to the FTP server
+  //   snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
 
 
-    // Open local data file
-    channel = m_sd.open(channel_path, FILE_READ);
-    if( !channel ) {
-      this->log("[!] failed to open sample data: %s\n", channel_path);
-      continue;
-    }
+  //   // Open local data file
+  //   channel = m_sd.open(channel_path, FILE_READ);
+  //   if( !channel ) {
+  //     this->log("[!] failed to open sample data: %s\n", channel_path);
+  //     continue;
+  //   }
 
-    // Open remote FTP destination
-    code = m_ftp.open(channel_path, FTP_MODE_WRITE);
-    if( code != 0 ) {
-      channel.close();
-      this->log("[!] failed to open remote sample data: %s (%d)\n", channel_path, code);
-      continue;
-    }
+  //   // Open remote FTP destination
+  //   code = m_ftp.open(channel_path, FTP_MODE_WRITE);
+  //   if( code != 0 ) {
+  //     channel.close();
+  //     this->log("[!] failed to open remote sample data: %s (%d)\n", channel_path, code);
+  //     continue;
+  //   }
 
-    // Transfer data
-    for( size_t count = channel.read(buffer, 512); count != 0; count = channel.read(buffer, 512) ){
-      m_ftp.write(buffer, count);
-    }
+  //   // Transfer data
+  //   for( size_t count = channel.read(buffer, 512); count != 0; count = channel.read(buffer, 512) ){
+  //     m_ftp.write(buffer, count);
+  //   }
 
-    channel.close();
+    // channel.close();
 
-    // Ensure upload is reported as successful
-    code = m_ftp.close();
-    if( code != 0 ) {
-      this->log("[!] failed to upload sample data: %s (%d)\n", channel_path, code);
-      continue;
-    }
-  }
+  //   // Ensure upload is reported as successful
+  //   code = m_ftp.close();
+  //   if( code != 0 ) {
+  //     this->log("[!] failed to upload sample data: %s (%d)\n", channel_path, code);
+  //     continue;
+  //   }
+  // }
 
-  // FTP no longer needed
-  m_ftp.disconnect();
+  // // FTP no longer needed
+  // m_ftp.disconnect();
 
 }
 
@@ -434,7 +442,8 @@ int Sensor::init_audio()
   // Set codec input and output levels
   m_audio_control.volume(1);
   m_audio_control.inputLevel(15.85);
-
+  sine1.frequency(3000);
+  sine1.amplitude(1);
   this->log("[+] initialized audio controller\n");
 
   return 0;

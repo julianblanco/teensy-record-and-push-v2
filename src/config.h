@@ -5,13 +5,15 @@
 #define _SENSOR_CONFIG_H_
 
 // Number of audio channels to record
-#define CONFIG_CHANNEL_COUNT               4
+#define CONFIG_CHANNEL_COUNT               1
 // Name of the directory to store an individual recording; formatted with a single integer
 #define CONFIG_RECORDING_DIRECTORY         "/rec%d"
 // Path to an individual channel recording including the recording index and the channel index
 #define CONFIG_CHANNEL_PATH                "%s/chan%d.raw"
 // MAC Address used for ethernet communication
 #define CONFIG_MAC_ADDRESS                 {0xDE,0xAD,0xBE,0xEF,0xC0,0xDE}
+//Audio server IP adderss
+#define CONGIG_UDP_ADDRESS                IPAddress(192,168,42,6)
 // FTP Server IP address
 #define CONFIG_FTP_ADDRESS                 IPAddress(192,168,42,6)
 #define CONFIG_FTP_PORT                    21
@@ -19,7 +21,13 @@
 #define CONFIG_SELF_ADDRESS                IPAddress(192,168,42,10)
 // DNS Address (not used)
 #define CONFIG_DNS_ADDRESS                 IPAddress(192,168,42,10)
-// SD Card FAT File System Type
+//record type (SD 1, USB 2, UDP 3)
+#define RECORD_TYPE 2
+//internal use for code
+#define SDrecord 1
+#define USBrecord 2
+#define UDPrecord 3
+// SD Card FAT File System Type 
 #define CONFIG_SD_FAT_TYPE                 3
 // SD Card SS Pin is defined by the board in some cases
 #ifndef SDCARD_SS_PIN
@@ -87,17 +95,17 @@
 #endif
 
 #if CONFIG_CHANNEL_COUNT == 1
-#define CONFIG_AUDIO_PATCH_INIT AudioConnection(m_tdm, 0, m_audio_queue[0], 0)
+#define CONFIG_AUDIO_PATCH_INIT AudioConnection(sine1, 0, m_audio_queue[0], 0)
 #elif CONFIG_CHANNEL_COUNT == 2
 #define CONFIG_AUDIO_PATCH_INIT \
   AudioConnection(m_tdm, 0, m_audio_queue[0], 0), \
   AudioConnection(m_tdm, 2, m_audio_queue[1], 0)
 #elif CONFIG_CHANNEL_COUNT == 4
 #define CONFIG_AUDIO_PATCH_INIT \
-  AudioConnection(m_tdm, 0, m_audio_queue[0], 0), \
-  AudioConnection(m_tdm, 2, m_audio_queue[1], 0), \
-  AudioConnection(m_tdm, 4, m_audio_queue[2], 0), \
-  AudioConnection(m_tdm, 6, m_audio_queue[3], 0)
+  AudioConnection(m_tdm, 2, m_audio_queue[0], 0), \
+  AudioConnection(m_tdm, 4, m_audio_queue[1], 0), \
+  AudioConnection(m_tdm, 6, m_audio_queue[2], 0), \
+  AudioConnection(m_tdm, 8, m_audio_queue[3], 0)
 #endif
 
 // Number of samples to collect to meet recording length (floor'd)

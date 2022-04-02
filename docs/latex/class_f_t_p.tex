@@ -1,0 +1,119 @@
+\hypertarget{class_f_t_p}{}\doxysection{FTP\texorpdfstring{$<$}{<} Client \texorpdfstring{$>$}{>} Class Template Reference}
+\label{class_f_t_p}\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+
+
+{\ttfamily \#include $<$ftp.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{class_f_t_p_aa942ae596d3666d0ec51ce5af3c3c652}{FTP}} ()
+\item 
+\mbox{\hyperlink{class_f_t_p_a61f664d1169776a8de18596fd8aa89f2}{$\sim$\+FTP}} ()
+\item 
+int \mbox{\hyperlink{class_f_t_p_a9807944feede58f933430b34ae3b03c2}{connect}} (IPAddress host, uint16\+\_\+t port)
+\item 
+void \mbox{\hyperlink{class_f_t_p_aa6faaf07cd6125d45fbd8efacec2d0af}{disconnect}} ()
+\item 
+int \mbox{\hyperlink{class_f_t_p_a2db7f0e47af14b893809d3ae36e3658b}{auth}} (const char $\ast$user, const char $\ast$password)
+\item 
+int \mbox{\hyperlink{class_f_t_p_a2f103f27dfbc5bace7747af1e893bd91}{open}} (const char $\ast$path, int mode)
+\item 
+int \mbox{\hyperlink{class_f_t_p_ac82fc11a6f6fb55ffb527ef3baff7b2b}{close}} ()
+\item 
+size\+\_\+t \mbox{\hyperlink{class_f_t_p_a1f5cd356a274b57ab2c26e051d4de914}{read}} (char $\ast$buffer, size\+\_\+t count)
+\item 
+size\+\_\+t \mbox{\hyperlink{class_f_t_p_a9ae4d8d21e275aa203898eb23420ddf4}{write}} (const char $\ast$buffer, size\+\_\+t len)
+\item 
+int \mbox{\hyperlink{class_f_t_p_ab72ede1ca31fe22146d4f0b57e309bc5}{mkdir}} (const char $\ast$path)
+\item 
+int \mbox{\hyperlink{class_f_t_p_aeca7da0206984ebc11801af935597aca}{chdir}} (const char $\ast$path)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_f_t_p_aa942ae596d3666d0ec51ce5af3c3c652}\label{class_f_t_p_aa942ae596d3666d0ec51ce5af3c3c652}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!FTP@{FTP}}
+\index{FTP@{FTP}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{FTP()}{FTP()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+\mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::\mbox{\hyperlink{class_f_t_p}{FTP}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_f_t_p_a61f664d1169776a8de18596fd8aa89f2}\label{class_f_t_p_a61f664d1169776a8de18596fd8aa89f2}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!````~FTP@{$\sim$FTP}}
+\index{````~FTP@{$\sim$FTP}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{$\sim$FTP()}{~FTP()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+\mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::$\sim$\mbox{\hyperlink{class_f_t_p}{FTP}} (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{class_f_t_p_a2db7f0e47af14b893809d3ae36e3658b}\label{class_f_t_p_a2db7f0e47af14b893809d3ae36e3658b}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!auth@{auth}}
+\index{auth@{auth}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{auth()}{auth()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+int \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::auth (\begin{DoxyParamCaption}\item[{const char $\ast$}]{user,  }\item[{const char $\ast$}]{password }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_f_t_p_aeca7da0206984ebc11801af935597aca}\label{class_f_t_p_aeca7da0206984ebc11801af935597aca}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!chdir@{chdir}}
+\index{chdir@{chdir}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{chdir()}{chdir()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+int \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::chdir (\begin{DoxyParamCaption}\item[{const char $\ast$}]{path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_f_t_p_ac82fc11a6f6fb55ffb527ef3baff7b2b}\label{class_f_t_p_ac82fc11a6f6fb55ffb527ef3baff7b2b}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!close@{close}}
+\index{close@{close}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{close()}{close()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+int \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::close (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_f_t_p_a9807944feede58f933430b34ae3b03c2}\label{class_f_t_p_a9807944feede58f933430b34ae3b03c2}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!connect@{connect}}
+\index{connect@{connect}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{connect()}{connect()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+int \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::connect (\begin{DoxyParamCaption}\item[{IPAddress}]{host,  }\item[{uint16\+\_\+t}]{port }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_f_t_p_aa6faaf07cd6125d45fbd8efacec2d0af}\label{class_f_t_p_aa6faaf07cd6125d45fbd8efacec2d0af}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!disconnect@{disconnect}}
+\index{disconnect@{disconnect}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{disconnect()}{disconnect()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+void \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::disconnect (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_f_t_p_ab72ede1ca31fe22146d4f0b57e309bc5}\label{class_f_t_p_ab72ede1ca31fe22146d4f0b57e309bc5}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!mkdir@{mkdir}}
+\index{mkdir@{mkdir}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{mkdir()}{mkdir()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+int \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::mkdir (\begin{DoxyParamCaption}\item[{const char $\ast$}]{path }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_f_t_p_a2f103f27dfbc5bace7747af1e893bd91}\label{class_f_t_p_a2f103f27dfbc5bace7747af1e893bd91}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!open@{open}}
+\index{open@{open}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{open()}{open()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+int \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::open (\begin{DoxyParamCaption}\item[{const char $\ast$}]{path,  }\item[{int}]{mode }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+\mbox{\Hypertarget{class_f_t_p_a1f5cd356a274b57ab2c26e051d4de914}\label{class_f_t_p_a1f5cd356a274b57ab2c26e051d4de914}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!read@{read}}
+\index{read@{read}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{read()}{read()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+size\+\_\+t \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::read (\begin{DoxyParamCaption}\item[{char $\ast$}]{buffer,  }\item[{size\+\_\+t}]{count }\end{DoxyParamCaption})}
+
+\mbox{\Hypertarget{class_f_t_p_a9ae4d8d21e275aa203898eb23420ddf4}\label{class_f_t_p_a9ae4d8d21e275aa203898eb23420ddf4}} 
+\index{FTP$<$ Client $>$@{FTP$<$ Client $>$}!write@{write}}
+\index{write@{write}!FTP$<$ Client $>$@{FTP$<$ Client $>$}}
+\doxysubsubsection{\texorpdfstring{write()}{write()}}
+{\footnotesize\ttfamily template$<$typename Client $>$ \\
+size\+\_\+t \mbox{\hyperlink{class_f_t_p}{FTP}}$<$ Client $>$\+::write (\begin{DoxyParamCaption}\item[{const char $\ast$}]{buffer,  }\item[{size\+\_\+t}]{len }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+src/\mbox{\hyperlink{ftp_8h}{ftp.\+h}}\end{DoxyCompactItemize}

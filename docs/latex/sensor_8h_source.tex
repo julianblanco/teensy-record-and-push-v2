@@ -1,0 +1,78 @@
+\hypertarget{sensor_8h_source}{}\doxysection{sensor.\+h}
+\label{sensor_8h_source}\index{src/sensor.h@{src/sensor.h}}
+\mbox{\hyperlink{sensor_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*}}
+\DoxyCodeLine{2 \textcolor{comment}{ * Record and Push Sensor for Laphable}}
+\DoxyCodeLine{3 \textcolor{comment}{*/}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#ifndef \_SENSOR\_H\_}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#define \_SENSOR\_H\_}}
+\DoxyCodeLine{6 }
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#include <NativeEthernet.h>}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#include <SdFat.h>}}
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include <SPI.h>}}
+\DoxyCodeLine{10 \textcolor{preprocessor}{\#include <Audio.h>}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{\#include <Wire.h>}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{13 }
+\DoxyCodeLine{14 \textcolor{preprocessor}{\#include "{}Watchdog\_t4.h"{}}}
+\DoxyCodeLine{15 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{ftp_8h}{ftp.h}}"{}}}
+\DoxyCodeLine{16 \textcolor{preprocessor}{\#include "{}\mbox{\hyperlink{config_8h}{config.h}}"{}}}
+\DoxyCodeLine{17 }
+\DoxyCodeLine{18 \textcolor{keyword}{class }\mbox{\hyperlink{class_sensor}{Sensor}}}
+\DoxyCodeLine{19 \{}
+\DoxyCodeLine{20 \textcolor{comment}{// Public interface methods}}
+\DoxyCodeLine{21 \textcolor{keyword}{public}:}
+\DoxyCodeLine{22   \mbox{\hyperlink{class_sensor_a342d6d11ef572c8cba92cb76fb1a294b}{Sensor}}();}
+\DoxyCodeLine{23   \mbox{\hyperlink{class_sensor_aee8c70e7ef05ce65e7ee33686b5d7db2}{\string~Sensor}}();}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{36   \textcolor{keywordtype}{int} \mbox{\hyperlink{class_sensor_a13c10290b5d69df0f8a97a4b78cf805f}{setup}}();}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{43   \textcolor{keywordtype}{void} \mbox{\hyperlink{class_sensor_a89113c83e2a0d008a2c3083113604088}{run}}();}
+\DoxyCodeLine{44 }
+\DoxyCodeLine{45 \textcolor{comment}{// Private internal methods}}
+\DoxyCodeLine{46 \textcolor{keyword}{private}:}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{57   \textcolor{keywordtype}{int} upload\_sd\_file(\textcolor{keywordtype}{char}* filename);}
+\DoxyCodeLine{58 }
+\DoxyCodeLine{75   \textcolor{keywordtype}{int} generate\_new\_dir(\textcolor{keywordtype}{char}* path, \textcolor{keywordtype}{size\_t} len);}
+\DoxyCodeLine{76 }
+\DoxyCodeLine{88   \textcolor{keywordtype}{void} start\_sample(\textcolor{keywordtype}{char}* recording\_dir, \textcolor{keywordtype}{size\_t} length, \mbox{\hyperlink{config_8h_a469fab98b06cd84e41e6d76fed7acdd7}{CONFIG\_SD\_FILE}}* data\_file);}
+\DoxyCodeLine{89 }
+\DoxyCodeLine{96   \textcolor{keywordtype}{void} stop\_sample(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* recording\_dir);}
+\DoxyCodeLine{97 }
+\DoxyCodeLine{104   \textcolor{keywordtype}{int} init\_ethernet();}
+\DoxyCodeLine{105   \textcolor{keywordtype}{int} init\_sdcard();}
+\DoxyCodeLine{106   \textcolor{keywordtype}{int} init\_watchdog();}
+\DoxyCodeLine{107   \textcolor{keywordtype}{int} init\_serial();}
+\DoxyCodeLine{108   \textcolor{keywordtype}{int} init\_audio();}
+\DoxyCodeLine{109 }
+\DoxyCodeLine{120   [[noreturn]] \textcolor{keywordtype}{void} panic(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* message, \textcolor{keywordtype}{int} code) \textcolor{keyword}{const};}
+\DoxyCodeLine{121 }
+\DoxyCodeLine{132   \textcolor{keywordtype}{void} log(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* fmt, ...) \textcolor{keyword}{const};}
+\DoxyCodeLine{133 }
+\DoxyCodeLine{134 \textcolor{comment}{// Private internal variables used directly by our sensor}}
+\DoxyCodeLine{135 \textcolor{keyword}{private}:}
+\DoxyCodeLine{136   WDT\_T4<WDT1> m\_watchdog;}
+\DoxyCodeLine{137   \mbox{\hyperlink{class_f_t_p}{FTP<EthernetClient>}} m\_ftp;}
+\DoxyCodeLine{138   AudioInputTDM m\_tdm;}
+\DoxyCodeLine{139   AudioRecordQueue m\_audio\_queue[\mbox{\hyperlink{config_8h_ac1ab9c57d62bd3514bbe060e3ec7b7cc}{CONFIG\_CHANNEL\_COUNT}}];}
+\DoxyCodeLine{140   AudioConnection m\_audio\_patch[\mbox{\hyperlink{config_8h_ac1ab9c57d62bd3514bbe060e3ec7b7cc}{CONFIG\_CHANNEL\_COUNT}}];}
+\DoxyCodeLine{141   AudioControlCS42448 m\_audio\_control;}
+\DoxyCodeLine{142   AudioSynthWaveformSine   sine1;          \textcolor{comment}{//xy=49,351}}
+\DoxyCodeLine{143   \mbox{\hyperlink{config_8h_a3b411d76b2279b3c4aa2b78fae22557d}{CONFIG\_SD\_CONTROLLER}} m\_sd;}
+\DoxyCodeLine{144   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} m\_next\_recording;}
+\DoxyCodeLine{145   \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{long} m\_first\_recording;}
+\DoxyCodeLine{146 }
+\DoxyCodeLine{147 \textcolor{comment}{// Private internal variables not used by the sensor directly}}
+\DoxyCodeLine{148 \textcolor{keyword}{private}:}
+\DoxyCodeLine{149   uint8\_t m\_network\_heap[\mbox{\hyperlink{config_8h_ac095b534c7d8b6984a662fb252c02b56}{CONFIG\_NETWORK\_HEAP\_SIZE}}];}
+\DoxyCodeLine{150 }
+\DoxyCodeLine{151 \textcolor{comment}{// Static variables used for audio shenanigans}}
+\DoxyCodeLine{152 \textcolor{keyword}{private}:}
+\DoxyCodeLine{153   \textcolor{keyword}{static} DMAMEM audio\_block\_t m\_audio\_queue\_buffer[\mbox{\hyperlink{config_8h_ad1197ddb5cd748405d1029886fddeaf7}{CONFIG\_AUDIO\_BUFFER\_SIZE}}];}
+\DoxyCodeLine{154 \};}
+\DoxyCodeLine{155 }
+\DoxyCodeLine{156 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,224 @@
+\hypertarget{config_8h}{}\doxysection{src/config.h File Reference}
+\label{config_8h}\index{src/config.h@{src/config.h}}
+\doxysubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{config_8h_ac1ab9c57d62bd3514bbe060e3ec7b7cc}{CONFIG\+\_\+\+CHANNEL\+\_\+\+COUNT}}~1
+\item 
+\#define \mbox{\hyperlink{config_8h_abaf94b849770f1a5f8d7c256c5fc2e76}{CONFIG\+\_\+\+RECORDING\+\_\+\+DIRECTORY}}~\char`\"{}/rec\%d\char`\"{}
+\item 
+\#define \mbox{\hyperlink{config_8h_a0eede54f3d2002927917ef80cb4c45d4}{CONFIG\+\_\+\+CHANNEL\+\_\+\+PATH}}~\char`\"{}\%s/chan\%d.\+raw\char`\"{}
+\item 
+\#define \mbox{\hyperlink{config_8h_a7874a8336c8195cf20b68af743ea849c}{CONFIG\+\_\+\+MAC\+\_\+\+ADDRESS}}~\{0x\+DE,0x\+AD,0x\+BE,0x\+EF,0x\+C0,0x\+DE\}
+\item 
+\#define \mbox{\hyperlink{config_8h_a91fff36ee595bc2ce0029977ddf85c49}{CONFIG\+\_\+\+FTP\+\_\+\+ADDRESS}}~IPAddress(192,168,42,6)
+\item 
+\#define \mbox{\hyperlink{config_8h_a3fe758e765c81728ec4273cda0bf95b3}{CONFIG\+\_\+\+FTP\+\_\+\+PORT}}~21
+\item 
+\#define \mbox{\hyperlink{config_8h_af1d6cb326c4f3c559830ee92f75bd109}{CONFIG\+\_\+\+SELF\+\_\+\+ADDRESS}}~IPAddress(192,168,42,10)
+\item 
+\#define \mbox{\hyperlink{config_8h_a7963dc1abdff2c75c4872de5ced92f6f}{CONFIG\+\_\+\+DNS\+\_\+\+ADDRESS}}~IPAddress(192,168,42,10)
+\item 
+\#define \mbox{\hyperlink{config_8h_a8f85f0213a562997625879b272b79514}{CONFIG\+\_\+\+SD\+\_\+\+FAT\+\_\+\+TYPE}}~3
+\item 
+\#define \mbox{\hyperlink{config_8h_acffaa661025d16c453c97972eaf27946}{CONFIG\+\_\+\+SD\+\_\+\+CS\+\_\+\+PIN}}~SS
+\item 
+\#define \mbox{\hyperlink{config_8h_a534ca6aef944dff7b5b8e6ab16eb0699}{CONFIG\+\_\+\+SPI\+\_\+\+CLOCK}}~SD\+\_\+\+SCK\+\_\+\+MHZ(50)
+\item 
+\#define \mbox{\hyperlink{config_8h_ac095b534c7d8b6984a662fb252c02b56}{CONFIG\+\_\+\+NETWORK\+\_\+\+HEAP\+\_\+\+SIZE}}~(1024$\ast$120)
+\item 
+\#define \mbox{\hyperlink{config_8h_a8d89ed83a0dd38eecc0a54f299909af0}{CONFIG\+\_\+\+WATCHDOG\+\_\+\+WARNING\+\_\+\+TIMEOUT}}~30
+\item 
+\#define \mbox{\hyperlink{config_8h_accf7bd2816dcfb191a3247e2c8e68611}{CONFIG\+\_\+\+WATCHDOG\+\_\+\+RESET\+\_\+\+TIMEOUT}}~60
+\item 
+\#define \mbox{\hyperlink{config_8h_a1ef34b84a9af4cb20b349e8f2b4bcb67}{CONFIG\+\_\+\+SERIAL\+\_\+\+BAUD}}~9600
+\item 
+\#define \mbox{\hyperlink{config_8h_a31913e59c5155e1a75fd600d195ac0b2}{CONFIG\+\_\+\+LED}}~LED\+\_\+\+BUILTIN
+\item 
+\#define \mbox{\hyperlink{config_8h_aaae8aa0e07608ba5cbaad0c51b835b87}{CONFIG\+\_\+\+RECORDING\+\_\+\+LENGTH}}~5000
+\item 
+\#define \mbox{\hyperlink{config_8h_aa4e1c2a7d32cdb1a9389d788b13aabc1}{CONFIG\+\_\+\+HOLD\+\_\+\+LENGTH}}~25000
+\item 
+\#define \mbox{\hyperlink{config_8h_a8cf9c4843247f2d46cd5ad8290deb093}{CONFIG\+\_\+\+FTP\+\_\+\+USER}}~\char`\"{}ftpuser\char`\"{}
+\item 
+\#define \mbox{\hyperlink{config_8h_a8ddbc42bea37000eb56050febff7a963}{CONFIG\+\_\+\+FTP\+\_\+\+PASSWORD}}~\char`\"{}just4munk\char`\"{}
+\item 
+\#define \mbox{\hyperlink{config_8h_ad1197ddb5cd748405d1029886fddeaf7}{CONFIG\+\_\+\+AUDIO\+\_\+\+BUFFER\+\_\+\+SIZE}}~256
+\item 
+\#define \mbox{\hyperlink{config_8h_a7912a4c759f7ac83c29f7a103e7b6c51}{CONFIG\+\_\+\+SD\+\_\+\+CARD\+\_\+\+ROLLOFF}}~0
+\item 
+\#define \mbox{\hyperlink{config_8h_a3b411d76b2279b3c4aa2b78fae22557d}{CONFIG\+\_\+\+SD\+\_\+\+CONTROLLER}}~Sd\+Fs
+\item 
+\#define \mbox{\hyperlink{config_8h_a469fab98b06cd84e41e6d76fed7acdd7}{CONFIG\+\_\+\+SD\+\_\+\+FILE}}~Fs\+File
+\item 
+\#define \mbox{\hyperlink{config_8h_a9cf253ab3ee0761f213a28d9198c02ef}{CONFIG\+\_\+\+AUDIO\+\_\+\+PATCH\+\_\+\+INIT}}~Audio\+Connection(sine1, 0, m\+\_\+audio\+\_\+queue\mbox{[}0\mbox{]}, 0)
+\item 
+\#define \mbox{\hyperlink{config_8h_ae2837f241e0b2445a438465328eb7220}{CONFIG\+\_\+\+RECORDING\+\_\+\+SAMPLE\+\_\+\+COUNT}}~((size\+\_\+t)( ((\mbox{\hyperlink{config_8h_aaae8aa0e07608ba5cbaad0c51b835b87}{CONFIG\+\_\+\+RECORDING\+\_\+\+LENGTH}} / 1000) $\ast$ 44100) / 256 ))
+\item 
+\#define \mbox{\hyperlink{config_8h_a4f1bd0273e6525e1b8031fc0907ca5c7}{CONFIG\+\_\+\+RECORDING\+\_\+\+TOTAL\+\_\+\+BLOCKS}}~((\mbox{\hyperlink{config_8h_ac1ab9c57d62bd3514bbe060e3ec7b7cc}{CONFIG\+\_\+\+CHANNEL\+\_\+\+COUNT}} $\ast$ (\mbox{\hyperlink{config_8h_ae2837f241e0b2445a438465328eb7220}{CONFIG\+\_\+\+RECORDING\+\_\+\+SAMPLE\+\_\+\+COUNT}}$\ast$256) $\ast$ 2) / 512)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Macro Definition Documentation}
+\mbox{\Hypertarget{config_8h_ad1197ddb5cd748405d1029886fddeaf7}\label{config_8h_ad1197ddb5cd748405d1029886fddeaf7}} 
+\index{config.h@{config.h}!CONFIG\_AUDIO\_BUFFER\_SIZE@{CONFIG\_AUDIO\_BUFFER\_SIZE}}
+\index{CONFIG\_AUDIO\_BUFFER\_SIZE@{CONFIG\_AUDIO\_BUFFER\_SIZE}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_AUDIO\_BUFFER\_SIZE}{CONFIG\_AUDIO\_BUFFER\_SIZE}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+AUDIO\+\_\+\+BUFFER\+\_\+\+SIZE~256}
+
+\mbox{\Hypertarget{config_8h_a9cf253ab3ee0761f213a28d9198c02ef}\label{config_8h_a9cf253ab3ee0761f213a28d9198c02ef}} 
+\index{config.h@{config.h}!CONFIG\_AUDIO\_PATCH\_INIT@{CONFIG\_AUDIO\_PATCH\_INIT}}
+\index{CONFIG\_AUDIO\_PATCH\_INIT@{CONFIG\_AUDIO\_PATCH\_INIT}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_AUDIO\_PATCH\_INIT}{CONFIG\_AUDIO\_PATCH\_INIT}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+AUDIO\+\_\+\+PATCH\+\_\+\+INIT~Audio\+Connection(sine1, 0, m\+\_\+audio\+\_\+queue\mbox{[}0\mbox{]}, 0)}
+
+\mbox{\Hypertarget{config_8h_ac1ab9c57d62bd3514bbe060e3ec7b7cc}\label{config_8h_ac1ab9c57d62bd3514bbe060e3ec7b7cc}} 
+\index{config.h@{config.h}!CONFIG\_CHANNEL\_COUNT@{CONFIG\_CHANNEL\_COUNT}}
+\index{CONFIG\_CHANNEL\_COUNT@{CONFIG\_CHANNEL\_COUNT}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_CHANNEL\_COUNT}{CONFIG\_CHANNEL\_COUNT}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+CHANNEL\+\_\+\+COUNT~1}
+
+\mbox{\hyperlink{class_sensor}{Sensor}} configuration \mbox{\Hypertarget{config_8h_a0eede54f3d2002927917ef80cb4c45d4}\label{config_8h_a0eede54f3d2002927917ef80cb4c45d4}} 
+\index{config.h@{config.h}!CONFIG\_CHANNEL\_PATH@{CONFIG\_CHANNEL\_PATH}}
+\index{CONFIG\_CHANNEL\_PATH@{CONFIG\_CHANNEL\_PATH}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_CHANNEL\_PATH}{CONFIG\_CHANNEL\_PATH}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+CHANNEL\+\_\+\+PATH~\char`\"{}\%s/chan\%d.\+raw\char`\"{}}
+
+\mbox{\Hypertarget{config_8h_a7963dc1abdff2c75c4872de5ced92f6f}\label{config_8h_a7963dc1abdff2c75c4872de5ced92f6f}} 
+\index{config.h@{config.h}!CONFIG\_DNS\_ADDRESS@{CONFIG\_DNS\_ADDRESS}}
+\index{CONFIG\_DNS\_ADDRESS@{CONFIG\_DNS\_ADDRESS}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_DNS\_ADDRESS}{CONFIG\_DNS\_ADDRESS}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+DNS\+\_\+\+ADDRESS~IPAddress(192,168,42,10)}
+
+\mbox{\Hypertarget{config_8h_a91fff36ee595bc2ce0029977ddf85c49}\label{config_8h_a91fff36ee595bc2ce0029977ddf85c49}} 
+\index{config.h@{config.h}!CONFIG\_FTP\_ADDRESS@{CONFIG\_FTP\_ADDRESS}}
+\index{CONFIG\_FTP\_ADDRESS@{CONFIG\_FTP\_ADDRESS}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_FTP\_ADDRESS}{CONFIG\_FTP\_ADDRESS}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+FTP\+\_\+\+ADDRESS~IPAddress(192,168,42,6)}
+
+\mbox{\Hypertarget{config_8h_a8ddbc42bea37000eb56050febff7a963}\label{config_8h_a8ddbc42bea37000eb56050febff7a963}} 
+\index{config.h@{config.h}!CONFIG\_FTP\_PASSWORD@{CONFIG\_FTP\_PASSWORD}}
+\index{CONFIG\_FTP\_PASSWORD@{CONFIG\_FTP\_PASSWORD}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_FTP\_PASSWORD}{CONFIG\_FTP\_PASSWORD}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+FTP\+\_\+\+PASSWORD~\char`\"{}just4munk\char`\"{}}
+
+\mbox{\Hypertarget{config_8h_a3fe758e765c81728ec4273cda0bf95b3}\label{config_8h_a3fe758e765c81728ec4273cda0bf95b3}} 
+\index{config.h@{config.h}!CONFIG\_FTP\_PORT@{CONFIG\_FTP\_PORT}}
+\index{CONFIG\_FTP\_PORT@{CONFIG\_FTP\_PORT}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_FTP\_PORT}{CONFIG\_FTP\_PORT}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+FTP\+\_\+\+PORT~21}
+
+\mbox{\Hypertarget{config_8h_a8cf9c4843247f2d46cd5ad8290deb093}\label{config_8h_a8cf9c4843247f2d46cd5ad8290deb093}} 
+\index{config.h@{config.h}!CONFIG\_FTP\_USER@{CONFIG\_FTP\_USER}}
+\index{CONFIG\_FTP\_USER@{CONFIG\_FTP\_USER}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_FTP\_USER}{CONFIG\_FTP\_USER}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+FTP\+\_\+\+USER~\char`\"{}ftpuser\char`\"{}}
+
+\mbox{\Hypertarget{config_8h_aa4e1c2a7d32cdb1a9389d788b13aabc1}\label{config_8h_aa4e1c2a7d32cdb1a9389d788b13aabc1}} 
+\index{config.h@{config.h}!CONFIG\_HOLD\_LENGTH@{CONFIG\_HOLD\_LENGTH}}
+\index{CONFIG\_HOLD\_LENGTH@{CONFIG\_HOLD\_LENGTH}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_HOLD\_LENGTH}{CONFIG\_HOLD\_LENGTH}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+HOLD\+\_\+\+LENGTH~25000}
+
+\mbox{\Hypertarget{config_8h_a31913e59c5155e1a75fd600d195ac0b2}\label{config_8h_a31913e59c5155e1a75fd600d195ac0b2}} 
+\index{config.h@{config.h}!CONFIG\_LED@{CONFIG\_LED}}
+\index{CONFIG\_LED@{CONFIG\_LED}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_LED}{CONFIG\_LED}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+LED~LED\+\_\+\+BUILTIN}
+
+\mbox{\Hypertarget{config_8h_a7874a8336c8195cf20b68af743ea849c}\label{config_8h_a7874a8336c8195cf20b68af743ea849c}} 
+\index{config.h@{config.h}!CONFIG\_MAC\_ADDRESS@{CONFIG\_MAC\_ADDRESS}}
+\index{CONFIG\_MAC\_ADDRESS@{CONFIG\_MAC\_ADDRESS}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_MAC\_ADDRESS}{CONFIG\_MAC\_ADDRESS}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+MAC\+\_\+\+ADDRESS~\{0x\+DE,0x\+AD,0x\+BE,0x\+EF,0x\+C0,0x\+DE\}}
+
+\mbox{\Hypertarget{config_8h_ac095b534c7d8b6984a662fb252c02b56}\label{config_8h_ac095b534c7d8b6984a662fb252c02b56}} 
+\index{config.h@{config.h}!CONFIG\_NETWORK\_HEAP\_SIZE@{CONFIG\_NETWORK\_HEAP\_SIZE}}
+\index{CONFIG\_NETWORK\_HEAP\_SIZE@{CONFIG\_NETWORK\_HEAP\_SIZE}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_NETWORK\_HEAP\_SIZE}{CONFIG\_NETWORK\_HEAP\_SIZE}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+NETWORK\+\_\+\+HEAP\+\_\+\+SIZE~(1024$\ast$120)}
+
+\mbox{\Hypertarget{config_8h_abaf94b849770f1a5f8d7c256c5fc2e76}\label{config_8h_abaf94b849770f1a5f8d7c256c5fc2e76}} 
+\index{config.h@{config.h}!CONFIG\_RECORDING\_DIRECTORY@{CONFIG\_RECORDING\_DIRECTORY}}
+\index{CONFIG\_RECORDING\_DIRECTORY@{CONFIG\_RECORDING\_DIRECTORY}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_RECORDING\_DIRECTORY}{CONFIG\_RECORDING\_DIRECTORY}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+RECORDING\+\_\+\+DIRECTORY~\char`\"{}/rec\%d\char`\"{}}
+
+\mbox{\Hypertarget{config_8h_aaae8aa0e07608ba5cbaad0c51b835b87}\label{config_8h_aaae8aa0e07608ba5cbaad0c51b835b87}} 
+\index{config.h@{config.h}!CONFIG\_RECORDING\_LENGTH@{CONFIG\_RECORDING\_LENGTH}}
+\index{CONFIG\_RECORDING\_LENGTH@{CONFIG\_RECORDING\_LENGTH}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_RECORDING\_LENGTH}{CONFIG\_RECORDING\_LENGTH}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+RECORDING\+\_\+\+LENGTH~5000}
+
+\mbox{\Hypertarget{config_8h_ae2837f241e0b2445a438465328eb7220}\label{config_8h_ae2837f241e0b2445a438465328eb7220}} 
+\index{config.h@{config.h}!CONFIG\_RECORDING\_SAMPLE\_COUNT@{CONFIG\_RECORDING\_SAMPLE\_COUNT}}
+\index{CONFIG\_RECORDING\_SAMPLE\_COUNT@{CONFIG\_RECORDING\_SAMPLE\_COUNT}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_RECORDING\_SAMPLE\_COUNT}{CONFIG\_RECORDING\_SAMPLE\_COUNT}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+RECORDING\+\_\+\+SAMPLE\+\_\+\+COUNT~((size\+\_\+t)( ((\mbox{\hyperlink{config_8h_aaae8aa0e07608ba5cbaad0c51b835b87}{CONFIG\+\_\+\+RECORDING\+\_\+\+LENGTH}} / 1000) $\ast$ 44100) / 256 ))}
+
+\mbox{\Hypertarget{config_8h_a4f1bd0273e6525e1b8031fc0907ca5c7}\label{config_8h_a4f1bd0273e6525e1b8031fc0907ca5c7}} 
+\index{config.h@{config.h}!CONFIG\_RECORDING\_TOTAL\_BLOCKS@{CONFIG\_RECORDING\_TOTAL\_BLOCKS}}
+\index{CONFIG\_RECORDING\_TOTAL\_BLOCKS@{CONFIG\_RECORDING\_TOTAL\_BLOCKS}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_RECORDING\_TOTAL\_BLOCKS}{CONFIG\_RECORDING\_TOTAL\_BLOCKS}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+RECORDING\+\_\+\+TOTAL\+\_\+\+BLOCKS~((\mbox{\hyperlink{config_8h_ac1ab9c57d62bd3514bbe060e3ec7b7cc}{CONFIG\+\_\+\+CHANNEL\+\_\+\+COUNT}} $\ast$ (\mbox{\hyperlink{config_8h_ae2837f241e0b2445a438465328eb7220}{CONFIG\+\_\+\+RECORDING\+\_\+\+SAMPLE\+\_\+\+COUNT}}$\ast$256) $\ast$ 2) / 512)}
+
+\mbox{\Hypertarget{config_8h_a7912a4c759f7ac83c29f7a103e7b6c51}\label{config_8h_a7912a4c759f7ac83c29f7a103e7b6c51}} 
+\index{config.h@{config.h}!CONFIG\_SD\_CARD\_ROLLOFF@{CONFIG\_SD\_CARD\_ROLLOFF}}
+\index{CONFIG\_SD\_CARD\_ROLLOFF@{CONFIG\_SD\_CARD\_ROLLOFF}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_SD\_CARD\_ROLLOFF}{CONFIG\_SD\_CARD\_ROLLOFF}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+SD\+\_\+\+CARD\+\_\+\+ROLLOFF~0}
+
+\mbox{\Hypertarget{config_8h_a3b411d76b2279b3c4aa2b78fae22557d}\label{config_8h_a3b411d76b2279b3c4aa2b78fae22557d}} 
+\index{config.h@{config.h}!CONFIG\_SD\_CONTROLLER@{CONFIG\_SD\_CONTROLLER}}
+\index{CONFIG\_SD\_CONTROLLER@{CONFIG\_SD\_CONTROLLER}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_SD\_CONTROLLER}{CONFIG\_SD\_CONTROLLER}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+SD\+\_\+\+CONTROLLER~Sd\+Fs}
+
+\mbox{\Hypertarget{config_8h_acffaa661025d16c453c97972eaf27946}\label{config_8h_acffaa661025d16c453c97972eaf27946}} 
+\index{config.h@{config.h}!CONFIG\_SD\_CS\_PIN@{CONFIG\_SD\_CS\_PIN}}
+\index{CONFIG\_SD\_CS\_PIN@{CONFIG\_SD\_CS\_PIN}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_SD\_CS\_PIN}{CONFIG\_SD\_CS\_PIN}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+SD\+\_\+\+CS\+\_\+\+PIN~SS}
+
+\mbox{\Hypertarget{config_8h_a8f85f0213a562997625879b272b79514}\label{config_8h_a8f85f0213a562997625879b272b79514}} 
+\index{config.h@{config.h}!CONFIG\_SD\_FAT\_TYPE@{CONFIG\_SD\_FAT\_TYPE}}
+\index{CONFIG\_SD\_FAT\_TYPE@{CONFIG\_SD\_FAT\_TYPE}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_SD\_FAT\_TYPE}{CONFIG\_SD\_FAT\_TYPE}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+SD\+\_\+\+FAT\+\_\+\+TYPE~3}
+
+\mbox{\Hypertarget{config_8h_a469fab98b06cd84e41e6d76fed7acdd7}\label{config_8h_a469fab98b06cd84e41e6d76fed7acdd7}} 
+\index{config.h@{config.h}!CONFIG\_SD\_FILE@{CONFIG\_SD\_FILE}}
+\index{CONFIG\_SD\_FILE@{CONFIG\_SD\_FILE}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_SD\_FILE}{CONFIG\_SD\_FILE}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+SD\+\_\+\+FILE~Fs\+File}
+
+\mbox{\Hypertarget{config_8h_af1d6cb326c4f3c559830ee92f75bd109}\label{config_8h_af1d6cb326c4f3c559830ee92f75bd109}} 
+\index{config.h@{config.h}!CONFIG\_SELF\_ADDRESS@{CONFIG\_SELF\_ADDRESS}}
+\index{CONFIG\_SELF\_ADDRESS@{CONFIG\_SELF\_ADDRESS}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_SELF\_ADDRESS}{CONFIG\_SELF\_ADDRESS}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+SELF\+\_\+\+ADDRESS~IPAddress(192,168,42,10)}
+
+\mbox{\Hypertarget{config_8h_a1ef34b84a9af4cb20b349e8f2b4bcb67}\label{config_8h_a1ef34b84a9af4cb20b349e8f2b4bcb67}} 
+\index{config.h@{config.h}!CONFIG\_SERIAL\_BAUD@{CONFIG\_SERIAL\_BAUD}}
+\index{CONFIG\_SERIAL\_BAUD@{CONFIG\_SERIAL\_BAUD}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_SERIAL\_BAUD}{CONFIG\_SERIAL\_BAUD}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+SERIAL\+\_\+\+BAUD~9600}
+
+\mbox{\Hypertarget{config_8h_a534ca6aef944dff7b5b8e6ab16eb0699}\label{config_8h_a534ca6aef944dff7b5b8e6ab16eb0699}} 
+\index{config.h@{config.h}!CONFIG\_SPI\_CLOCK@{CONFIG\_SPI\_CLOCK}}
+\index{CONFIG\_SPI\_CLOCK@{CONFIG\_SPI\_CLOCK}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_SPI\_CLOCK}{CONFIG\_SPI\_CLOCK}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+SPI\+\_\+\+CLOCK~SD\+\_\+\+SCK\+\_\+\+MHZ(50)}
+
+\mbox{\Hypertarget{config_8h_accf7bd2816dcfb191a3247e2c8e68611}\label{config_8h_accf7bd2816dcfb191a3247e2c8e68611}} 
+\index{config.h@{config.h}!CONFIG\_WATCHDOG\_RESET\_TIMEOUT@{CONFIG\_WATCHDOG\_RESET\_TIMEOUT}}
+\index{CONFIG\_WATCHDOG\_RESET\_TIMEOUT@{CONFIG\_WATCHDOG\_RESET\_TIMEOUT}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_WATCHDOG\_RESET\_TIMEOUT}{CONFIG\_WATCHDOG\_RESET\_TIMEOUT}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+WATCHDOG\+\_\+\+RESET\+\_\+\+TIMEOUT~60}
+
+\mbox{\Hypertarget{config_8h_a8d89ed83a0dd38eecc0a54f299909af0}\label{config_8h_a8d89ed83a0dd38eecc0a54f299909af0}} 
+\index{config.h@{config.h}!CONFIG\_WATCHDOG\_WARNING\_TIMEOUT@{CONFIG\_WATCHDOG\_WARNING\_TIMEOUT}}
+\index{CONFIG\_WATCHDOG\_WARNING\_TIMEOUT@{CONFIG\_WATCHDOG\_WARNING\_TIMEOUT}!config.h@{config.h}}
+\doxysubsubsection{\texorpdfstring{CONFIG\_WATCHDOG\_WARNING\_TIMEOUT}{CONFIG\_WATCHDOG\_WARNING\_TIMEOUT}}
+{\footnotesize\ttfamily \#define CONFIG\+\_\+\+WATCHDOG\+\_\+\+WARNING\+\_\+\+TIMEOUT~30}
+
