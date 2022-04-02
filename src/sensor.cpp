@@ -25,89 +25,90 @@ void Sensor::run()
   {
     m_watchdog.feed();
 
-    // Sample all channels and write to disk
-    for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
-      while( m_audio_queue[ch].available() < 2 );
+  //   // Sample all channels and write to disk
+  //   for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
+  //     while( m_audio_queue[ch].available() < 2 );
 
-      // Grab two blocks at a time to line up with SD write sizes and maximize
-      // write efficiency.
-      for(int i = 0; i < 2; ++i) {
-        memcpy(sd_buffer + i*256, m_audio_queue[ch].readBuffer(), 256);
-        m_audio_queue[ch].freeBuffer();
-      }
-      if(recordmode == SDrecord)data_file[ch].write(sd_buffer, 512);
-      if(recordmode == USBrecord)Serial.write(sd_buffer,512);
-      if(recordmode == UDPrecord)
-      {
-        Udp.beginPacket(CONGIG_UDP_ADDRESS, 2000);   // to udpsink
-        Udp.write(sd_buffer, 512);
-        Udp.endPacket();
-        }
-    }
+  //     // Grab two blocks at a time to line up with SD write sizes and maximize
+  //     // write efficiency.
+  //     for(int i = 0; i < 2; ++i) {
+  //       memcpy(sd_buffer + i*256, m_audio_queue[ch].readBuffer(), 256);
+  //       m_audio_queue[ch].freeBuffer();
+  //     }
+  //     if(recordmode == SDrecord)data_file[ch].write(sd_buffer, 512);
+  //     if(recordmode == USBrecord)Serial.write(sd_buffer,512);
+  //     if(recordmode == UDPrecord)
+  //     {
+  //       Udp.beginPacket(CONGIG_UDP_ADDRESS, 2000);   // to udpsink
+  //       Udp.write(sd_buffer, 512);
+  //       Udp.endPacket();
+  //       }
+  //   }
 
-    collected_buffers += 1;
+  //   collected_buffers += 1;
 
-    // Collected enough samples to meet recording length
-    if( collected_buffers >= CONFIG_RECORDING_SAMPLE_COUNT ) {
+  //   // Collected enough samples to meet recording length
+  //   if( collected_buffers >= CONFIG_RECORDING_SAMPLE_COUNT ) {
 
-      // Record the time we should have stopped, since upload may take a couple seconds
-      // if network latency is high.
-      time_stopped = millis();
+  //     // Record the time we should have stopped, since upload may take a couple seconds
+  //     // if network latency is high.
+  //     time_stopped = millis();
 
-    if(recordmode == SDrecord){
-      // Close files; we are done writing
-      for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ++ch) {
-        data_file[ch].close();
-      }
-    }
-      // Stop the sampling process and flush queues
-      this->stop_sample(recording_dir);
+  //   if(recordmode == SDrecord){
+  //     // Close files; we are done writing
+  //     for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ++ch) {
+  //       data_file[ch].close();
+  //     }
+  //   }
+  //     // Stop the sampling process and flush queues
+  //     this->stop_sample(recording_dir);
 
-      unsigned long ellapsed = millis() - time_stopped;
-      this->log("[+] upload complete after %dms\n", ellapsed);
+  //     unsigned long ellapsed = millis() - time_stopped;
+  //     this->log("[+] upload complete after %dms\n", ellapsed);
 
-      // Sleep for the remaining hold time
-      if( ellapsed < CONFIG_HOLD_LENGTH ) {
-        this->log("[+] sleep for %dms\n", CONFIG_HOLD_LENGTH-ellapsed);
-        delay(CONFIG_HOLD_LENGTH - ellapsed);
-      } else {
-        this->log("[+] foregoing sleep due to lengthy upload\n");
-      }
+  //     // Sleep for the remaining hold time
+  //     if( ellapsed < CONFIG_HOLD_LENGTH ) {
+  //       this->log("[+] sleep for %dms\n", CONFIG_HOLD_LENGTH-ellapsed);
+  //       delay(CONFIG_HOLD_LENGTH - ellapsed);
+  //     } else {
+  //       this->log("[+] foregoing sleep due to lengthy upload\n");
+  //     }
 
-      // Restart recording
-      this->start_sample(recording_dir, 256, data_file);
+  //     // Restart recording
+  //     this->start_sample(recording_dir, 256, data_file);
 
-      // Reset number of collected buffers
-      collected_buffers = 0;
-    }
+  //     // Reset number of collected buffers
+  //     collected_buffers = 0;
+  //   }
 
   }
 
 }
+
 
 int Sensor::setup()
 {
   int code = 0;
   int recordmode = RECORD_TYPE;
   byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-  code = this->init_serial();
-  if( code != 0 ) this->panic("serial initialization failed", code);
+  // code = this->init_serial();
+  // if( code != 0 ) this->panic("serial initialization failed", code);
 
   this->log("[-] waiting five seconds for startup sequence...");
   delay(5000);
 
-  if(recordmode == SDrecord){
-  code = this->init_sdcard();
-  if( code != 0 ) this->panic("sdcard initialization failed", code);
-  }
+//   if(recordmode == SDrecord){
+//   code = this->init_sdcard();
+//   if( code != 0 ) this->panic("sdcard initialization failed", code);
+//   }
 
-#if ! CONFIG_DISABLE_NETWORK
-  code = this->init_ethernet();
-  if( code != 0 ) this->panic("ethernet initialization failed", code);
-#endif
+// #if ! CONFIG_DISABLE_NETWORK
+//   code = this->init_ethernet();
+//   if( code != 0 ) this->panic("ethernet initialization failed", code);
+// #endif
 
-  code = this->init_audio();
-  if( code != 0 ) this->panic("audio initialization failed", code);
+//   code = this->init_audio();
+//   if( code != 0 ) this->panic("audio initialization failed", code);
 
   code = this->init_watchdog();
   if( code != 0 ) this->panic("watchdog initialization failed", code);

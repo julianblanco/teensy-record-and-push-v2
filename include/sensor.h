@@ -4,7 +4,8 @@
 #ifndef _SENSOR_H_
 #define _SENSOR_H_
 
-#include <SdFat.h>
+// #include "SdFat.h"
+#include <SD.h>
 #include <SPI.h>
 #include <Audio.h>
 #include <Wire.h>
@@ -145,8 +146,8 @@ private:
   unsigned long m_next_recording;
   unsigned long m_first_recording;
   unsigned int recordmode;
-  EthernetUDP Udp;
-  byte mac[];// = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+  // EthernetUDP Udp;
+  // byte mac[];// = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
 #if ! CONFIG_DISABLE_NETWORK
   FTP<EthernetClient> m_ftp;
