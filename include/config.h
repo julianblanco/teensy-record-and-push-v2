@@ -12,6 +12,8 @@
 #define CONFIG_CHANNEL_PATH                "%s/chan%d.raw"
 // MAC Address used for ethernet communication
 #define CONFIG_MAC_ADDRESS                 {0xDE,0xAD,0xBE,0xEF,0xC0,0xDE}
+//Audio server IP adderss
+#define CONGIG_UDP_ADDRESS                IPAddress(192,168,42,6)
 // FTP Server IP address
 #define CONFIG_FTP_ADDRESS                 IPAddress(192,168,42,6)
 #define CONFIG_FTP_PORT                    21
@@ -19,6 +21,12 @@
 #define CONFIG_SELF_ADDRESS                IPAddress(192,168,42,10)
 // DNS Address (not used)
 #define CONFIG_DNS_ADDRESS                 IPAddress(192,168,42,10)
+//record type (SD 1, USB 2, UDP 3)
+#define RECORD_TYPE 2
+//internal use for code
+#define SDrecord 1
+#define USBrecord 2
+#define UDPrecord 3
 // Use SDIO for SD transfer
 #define CONFIG_SD_USE_SDIO                 1
 // SD Card FAT File System Type
@@ -34,7 +42,7 @@
 // LED used to indicate sampling
 #define CONFIG_LED                         LED_BUILTIN
 // Length of time to sample (milliseconds)
-#define CONFIG_RECORDING_LENGTH            25000
+#define CONFIG_RECORDING_LENGTH            5000
 // Length of time to sleep between sampling (milliseconds)
 #define CONFIG_HOLD_LENGTH                 5000
 // FTP credentials for sample uploads

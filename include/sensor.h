@@ -4,7 +4,7 @@
 #ifndef _SENSOR_H_
 #define _SENSOR_H_
 
-#include <SdFat.h>
+#include <SD.h>
 #include <SPI.h>
 #include <Audio.h>
 #include <Wire.h>
@@ -144,6 +144,7 @@ private:
   CONFIG_SD_CONTROLLER m_sd;
   unsigned long m_next_recording;
   unsigned long m_first_recording;
+  unsigned int recordmode;
 
 #if ! CONFIG_DISABLE_NETWORK
   FTP<EthernetClient> m_ftp;
