@@ -28,6 +28,13 @@ format string which takes a string (`%s`) followed by an integer (`%d`). The
 string represents the recording base directory while the integer represents
 the channel index.
 
+### CONFIG_DISABLE_NETWORK
+
+If set, disable all interaction with ethernet including FTP communications.
+This is necessary when using a chip/board without ethernet support (e.g. the
+Teensy 4.0 vice Teensy 4.1). When defined >0, all routines and variables
+relating to network communication will be removed.
+
 ### CONFIG_MAC_ADDRESS
 
 Hardware MAC address to present over the ethernet port. This is an array of

@@ -99,8 +99,11 @@ int Sensor::setup()
   code = this->init_sdcard();
   if( code != 0 ) this->panic("sdcard initialization failed", code);
   }
+
+#if ! CONFIG_DISABLE_NETWORK
   code = this->init_ethernet();
   if( code != 0 ) this->panic("ethernet initialization failed", code);
+#endif
 
   code = this->init_audio();
   if( code != 0 ) this->panic("audio initialization failed", code);
@@ -118,7 +121,7 @@ int Sensor::generate_new_dir(char* recording_dir, size_t length)
 
   // Check if we have enough for this recording + 2 blocks for accounting information
   while ( blocks_left < (CONFIG_RECORDING_TOTAL_BLOCKS + 2) ) {
-#ifdef CONFIG_SD_CARD_ROLLOFF
+#if CONFIG_SD_CARD_ROLLOFF
     char channel_path[256];
 
     for(int id = m_first_recording; ; id++){
@@ -215,9 +218,11 @@ void Sensor::start_sample(char* recording_dir, size_t length, CONFIG_SD_FILE* da
 void Sensor::stop_sample(const char* recording_dir)
 {
   CONFIG_SD_FILE channel;
+#if ! CONFIG_DISABLE_NETWORK
   char channel_path[256];
   char buffer[512];
   int code;
+#endif
 
   this->log("[+] recording period complete; uploading to: %s\n", recording_dir);
 
@@ -233,65 +238,71 @@ void Sensor::stop_sample(const char* recording_dir)
     m_audio_queue[ch].clear();
   }
 
-  // // Connect to the FTP server
-  // code = m_ftp.connect(CONFIG_FTP_ADDRESS, CONFIG_FTP_PORT);
-  // if( code != 0 ) {
-  //   this->log("[!] failed to connect to ftp server: %d\n", code);
-  //   return;
-  // }
+#if ! CONFIG_DISABLE_NETWORK
 
-  // // Authenticate to FTP server
-  // code = m_ftp.auth(CONFIG_FTP_USER, CONFIG_FTP_PASSWORD);
-  // if( code != 0 ) {
-  //   m_ftp.disconnect();
-  //   this->log("[!] ftp authentication failed: %d\n", code);
-  //   return;
-  // }
+  // Connect to the FTP server
+  code = m_ftp.connect(CONFIG_FTP_ADDRESS, CONFIG_FTP_PORT);
+  if( code != 0 ) {
+    this->log("[!] failed to connect to ftp server: %d\n", code);
+    return;
+  }
 
-  // // Ensure the directory exists in the FTP server
-  // m_ftp.mkdir(recording_dir);
+  // Authenticate to FTP server
+  code = m_ftp.auth(CONFIG_FTP_USER, CONFIG_FTP_PASSWORD);
+  if( code != 0 ) {
+    m_ftp.disconnect();
+    this->log("[!] ftp authentication failed: %d\n", code);
+    return;
+  }
 
-  // // Now, upload the data
-  // for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
+  // Ensure the directory exists in the FTP server
+  m_ftp.mkdir(recording_dir);
 
-  //   // Upload the file to the FTP server
-  //   snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
+  // Now, upload the data
+  for(int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++) {
+
+    // Upload the file to the FTP server
+    snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
 
 
-  //   // Open local data file
-  //   channel = m_sd.open(channel_path, FILE_READ);
-  //   if( !channel ) {
-  //     this->log("[!] failed to open sample data: %s\n", channel_path);
-  //     continue;
-  //   }
+    // Open local data file
+    channel = m_sd.open(channel_path, FILE_READ);
+    if( !channel ) {
+      this->log("[!] failed to open sample data: %s\n", channel_path);
+      continue;
+    }
 
-  //   // Open remote FTP destination
-  //   code = m_ftp.open(channel_path, FTP_MODE_WRITE);
-  //   if( code != 0 ) {
-  //     channel.close();
-  //     this->log("[!] failed to open remote sample data: %s (%d)\n", channel_path, code);
-  //     continue;
-  //   }
+    // Open remote FTP destination
+    code = m_ftp.open(channel_path, FTP_MODE_WRITE);
+    if( code != 0 ) {
+      channel.close();
+      this->log("[!] failed to open remote sample data: %s (%d)\n", channel_path, code);
+      continue;
+    }
 
-  //   // Transfer data
-  //   for( size_t count = channel.read(buffer, 512); count != 0; count = channel.read(buffer, 512) ){
-  //     m_ftp.write(buffer, count);
-  //   }
+    // Transfer data
+    for( size_t count = channel.read(buffer, 512); count != 0; count = channel.read(buffer, 512) ){
+      m_ftp.write(buffer, count);
+    }
 
-    // channel.close();
+    channel.close();
 
-  //   // Ensure upload is reported as successful
-  //   code = m_ftp.close();
-  //   if( code != 0 ) {
-  //     this->log("[!] failed to upload sample data: %s (%d)\n", channel_path, code);
-  //     continue;
-  //   }
-  // }
+    // Ensure upload is reported as successful
+    code = m_ftp.close();
+    if( code != 0 ) {
+      this->log("[!] failed to upload sample data: %s (%d)\n", channel_path, code);
+      continue;
+    }
+  }
 
-  // // FTP no longer needed
-  // m_ftp.disconnect();
+  // FTP no longer needed
+  m_ftp.disconnect();
+
+#endif /* ! CONFIG_DISABLE_NETWORK */
 
 }
+
+#if ! CONFIG_DISABLE_NETWORK
 
 int Sensor::init_ethernet()
 {
@@ -310,7 +321,7 @@ int Sensor::init_ethernet()
 
   // Ensure we have link
   this->log("[-] waiting for ethernet link...");
-  while( ! m_sd.begin(SdioConfig(FIFO_SDIO)) ) {
+  while( Ethernet.linkStatus() != LinkON ) {
     // Silly, but erases previous message, allows us to give a lil spinny-boi
     this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
     this->log("[%c] waiting for ethernet link...", animation[frame]);
@@ -327,6 +338,8 @@ int Sensor::init_ethernet()
   return 0;
 }
 
+#endif
+
 int Sensor::init_sdcard()
 {
   const char* const animation = "\\|/-";
@@ -334,7 +347,7 @@ int Sensor::init_sdcard()
 
   // Wait for an SD card to be inserted
   this->log("[-] waiting for sd card insertion...");
-  while( ! m_sd.begin(SdioConfig(FIFO_SDIO)) ) {
+  while( ! m_sd.begin(CONFIG_SD) ) {
     // Silly, but erases previous message, allows us to give a lil spinny-boi
     this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
     this->log("[%c] waiting for sd card insertion...", animation[frame]);
