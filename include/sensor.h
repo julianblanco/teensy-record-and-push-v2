@@ -9,6 +9,8 @@
 #include <Audio.h>
 #include <Wire.h>
 #include <stdint.h>
+#include <NativeEthernet.h>
+#include <NativeEthernetUdp.h>
 
 #include "Watchdog_t4.h"
 #include "config.h"
@@ -143,6 +145,8 @@ private:
   unsigned long m_next_recording;
   unsigned long m_first_recording;
   unsigned int recordmode;
+  EthernetUDP Udp;
+  byte mac[];// = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
 #if ! CONFIG_DISABLE_NETWORK
   FTP<EthernetClient> m_ftp;

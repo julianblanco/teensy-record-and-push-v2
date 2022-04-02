@@ -36,10 +36,10 @@ void Sensor::run()
         m_audio_queue[ch].freeBuffer();
       }
       if(recordmode == SDrecord)data_file[ch].write(sd_buffer, 512);
-      if(recordmode == USBrecord)Serial.write(sd_buffer);
+      if(recordmode == USBrecord)Serial.write(sd_buffer,512);
       if(recordmode == UDPrecord)
       {
-        Udp.beginPacket(MyServer, 2000);   // to udpsink
+        Udp.beginPacket(CONGIG_UDP_ADDRESS, 2000);   // to udpsink
         Udp.write(sd_buffer, 512);
         Udp.endPacket();
         }
@@ -89,6 +89,7 @@ int Sensor::setup()
 {
   int code = 0;
   int recordmode = RECORD_TYPE;
+  byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
   code = this->init_serial();
   if( code != 0 ) this->panic("serial initialization failed", code);
 
