@@ -55,8 +55,12 @@ void Sensor::run()
       // Flush block to disk
 
       if (recordmode == SDrecord) data_file[ch].write(&m_audio_data[ch][0], 4096);
-      if (recordmode == USBrecord) Serial.write(&m_audio_data[ch][0], 4096);
-
+      if (recordmode == USBrecord) 
+      { //write123456,then channel number, then blocksize 
+        Serial.write(MAGICBYTES,MAGICBYTESLEN);
+        Serial.write((char)ch);
+        Serial.write(&m_audio_data[ch][0], 4096);
+      }
       // Reset counter
       m_audio_offset[ch] = 0;
     }
@@ -88,6 +92,26 @@ void Sensor::run()
       }
       if (recordmode == USBrecord)
       {
+
+        // Close files; we are done writing
+        for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ++ch)
+        {
+
+          // Write any non-4096-aligned data
+          if (m_audio_offset[ch] != 0)
+          {
+                    Serial.write(MAGICBYTES,MAGICBYTESLEN);
+                    Serial.write((char)ch);
+                    Serial.write(m_audio_data[ch], m_audio_offset[ch]);
+                    //[TODO] fix this ie i need to either send bytes or hard code on recv
+          }
+
+          // Close the file
+          data_file[ch].close();
+        }
+
+        // Stop the sampling process and flush queues
+        this->stop_sample(recording_dir);
 
       }
       unsigned long ellapsed = millis() - time_stopped;
@@ -525,7 +549,8 @@ int Sensor::init_audio()
   }
 
   // Enable differential mode
-  m_audio_control.adcDifferentialMode();
+  // m_audio_control.adcDifferentialMode();
+  m_audio_control.adcSingleEndedMode();
   m_audio_control.adcHighPassFilterEnable();
 
   // Set codec input and output levels

@@ -3,9 +3,11 @@
  */
 #ifndef _SENSOR_CONFIG_H_
 #define _SENSOR_CONFIG_H_
-
+//magicbytes for serial parse
+#define MAGICBYTES ((const char[]) {0x01,0x02,0x03,0x04,0x05,0x06})
+#define MAGICBYTESLEN 6 
 // Number of audio channels to record
-#define CONFIG_CHANNEL_COUNT               6
+#define CONFIG_CHANNEL_COUNT               1
 // Name of the directory to store an individual recording; formatted with a single integer
 #define CONFIG_RECORDING_DIRECTORY         "/rec%d"
 // Path to an individual channel recording including the recording index and the channel index
@@ -38,11 +40,11 @@
 // Watchdog reset timeout (seconds, 1->128, greater than warning)
 #define CONFIG_WATCHDOG_RESET_TIMEOUT      60
 // Serial baud rate
-#define CONFIG_SERIAL_BAUD                 9600
+#define CONFIG_SERIAL_BAUD                 2000000000
 // LED used to indicate sampling
 #define CONFIG_LED                         LED_BUILTIN
 // Length of time to sample (milliseconds)
-#define CONFIG_RECORDING_LENGTH            5000
+#define CONFIG_RECORDING_LENGTH            50000
 // Length of time to sleep between sampling (milliseconds)
 #define CONFIG_HOLD_LENGTH                 5000
 // FTP credentials for sample uploads
@@ -128,6 +130,7 @@
 #else
 #error "invalid channel count (expected one of [1,2,4,6])"
 #endif
+
 
 // Number of samples to collect to meet recording length (floor'd)
 #define CONFIG_RECORDING_SAMPLE_COUNT ((size_t)( ((CONFIG_RECORDING_LENGTH / 1000) * 44100) / 128 ))

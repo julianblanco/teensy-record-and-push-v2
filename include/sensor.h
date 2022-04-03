@@ -138,13 +138,14 @@ private:
   AudioRecordQueue m_audio_queue[CONFIG_CHANNEL_COUNT];
   AudioConnection m_audio_patch[CONFIG_CHANNEL_COUNT];
   uint8_t m_audio_data[CONFIG_CHANNEL_COUNT][4096];
-  uint16_t m_samples_collected[CONFIG_CHANNEL_COUNT];
+  uint16_t m_samples_collected[CONFIG_CHANNEL_COUNT];//number of 128 byte samples we have read
   uint16_t m_audio_offset[CONFIG_CHANNEL_COUNT];
   AudioControlCS42448 m_audio_control;
   CONFIG_SD_CONTROLLER m_sd;
   unsigned long m_next_recording;
   unsigned long m_first_recording;
   unsigned int recordmode;
+
 
 #if ! CONFIG_DISABLE_NETWORK
   FTP<EthernetClient> m_ftp;
