@@ -4,8 +4,8 @@
 #ifndef _SENSOR_CONFIG_H_
 #define _SENSOR_CONFIG_H_
 //magicbytes for serial parse
-#define MAGICBYTES ((const char[]) {0x01,0x02,0x03,0x04,0x05,0x06})
-#define MAGICBYTESLEN 6 
+#define MAGICBYTES ((const char[]) {0x01,0x02,0x41,0x00,0x00,0x0,0x07,0x08})
+#define MAGICBYTESLEN 8 
 // Number of audio channels to record
 #define CONFIG_CHANNEL_COUNT               1
 // Name of the directory to store an individual recording; formatted with a single integer
@@ -56,6 +56,8 @@
 #define CONFIG_SD_CARD_ROLLOFF             0
 // Whether to use Ethernet/FTP
 #define CONFIG_DISABLE_NETWORK             1
+
+#define WRITE_BLOCK_SIZE 3840
 
 #if CONFIG_SD_USE_SDIO
 // FIFO is faster than DMA according to documentation

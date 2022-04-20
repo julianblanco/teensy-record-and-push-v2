@@ -49,17 +49,19 @@ void Sensor::run()
       m_samples_collected[ch] += 1;
 
       // Is a block ready to flush?
-      if (m_audio_offset[ch] < 4096)
+      if (m_audio_offset[ch] < WRITE_BLOCK_SIZE)
         continue;
 
       // Flush block to disk
 
-      if (recordmode == SDrecord) data_file[ch].write(&m_audio_data[ch][0], 4096);
+      if (recordmode == SDrecord) data_file[ch].write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
       if (recordmode == USBrecord) 
-      { //write123456,then channel number, then blocksize 
+      { //write123456,then channel number, then blocksize
+        Serial.println(micros()); 
         Serial.write(MAGICBYTES,MAGICBYTESLEN);
         Serial.write((char)ch);
-        Serial.write(&m_audio_data[ch][0], 4096);
+        Serial.write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
+        Serial.println(micros());
       }
       // Reset counter
       m_audio_offset[ch] = 0;
