@@ -57,11 +57,14 @@ void Sensor::run()
       if (recordmode == SDrecord) data_file[ch].write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
       if (recordmode == USBrecord) 
       { //write123456,then channel number, then blocksize
-        Serial.println(micros()); 
-        Serial.write(MAGICBYTES,MAGICBYTESLEN);
-        Serial.write((char)ch);
-        Serial.write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
-        Serial.println(micros());
+        // Serial.println(micros()); 
+        // Serial.write(MAGICBYTES,MAGICBYTESLEN);
+        // Serial.write((char)ch);
+        // Serial.write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
+        // Serial.println(micros());
+        audio_data_frame.sequence_number = m_samples_collected[ch];
+        audio_data_frame.channels = ch;
+        audio_data_frame.samples = m_audio_data[ch][0];
       }
       // Reset counter
       m_audio_offset[ch] = 0;
@@ -165,6 +168,7 @@ int Sensor::setup()
   code = this->init_audio();
   if (code != 0)
     this->panic("audio initialization failed", code);
+    
 
   code = this->init_watchdog();
   if (code != 0)
@@ -560,6 +564,8 @@ int Sensor::init_audio()
   m_audio_control.inputLevel(15.85);
 
   delay(1000);
+  audio_data_frame.channels = 4;
+
 
   this->log("[+] initialized audio controller\n");
 
