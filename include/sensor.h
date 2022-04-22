@@ -152,7 +152,7 @@ private:
     uint16_t samples_per_channel;
     uint8_t channels;
     uint8_t sequence_number;
-    uint8_t samples[];
+    uint8_t samples[WRITE_BLOCK_SIZE];
   };
   static_assert(8==offsetof(struct send_audio_data,samples ), "struct problem");
 send_audio_data audio_data_frame;

@@ -64,7 +64,7 @@ void Sensor::run()
         // Serial.println(micros());
         audio_data_frame.sequence_number = m_samples_collected[ch];
         audio_data_frame.channels = ch;
-        audio_data_frame.samples = m_audio_data[ch][0];
+        memcpy(audio_data_frame.samples,m_audio_data[ch],WRITE_BLOCK_SIZE );
       }
       // Reset counter
       m_audio_offset[ch] = 0;
@@ -564,7 +564,9 @@ int Sensor::init_audio()
   m_audio_control.inputLevel(15.85);
 
   delay(1000);
-  audio_data_frame.channels = 4;
+  audio_data_frame.channels = CONFIG_CHANNEL_COUNT;
+  audio_data_frame.flags =0; //0x00
+  audio_data_frame.magic = 65;//0x41
 
 
   this->log("[+] initialized audio controller\n");
