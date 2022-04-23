@@ -62,9 +62,13 @@ void Sensor::run()
         // Serial.write((char)ch);
         // Serial.write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
         // Serial.println(micros());
+        if(!Serial.dtr())
+        {while(1);}//nukes system when recorder no longer reading via usb
         audio_data_frame.sequence_number = m_samples_collected[ch];
         audio_data_frame.channels = ch;
         memcpy(audio_data_frame.samples,m_audio_data[ch],WRITE_BLOCK_SIZE );
+        Serial.write((u_int8_t*)&audio_data_frame,sizeof(audio_data_frame));
+        
       }
       // Reset counter
       m_audio_offset[ch] = 0;
@@ -145,6 +149,11 @@ int Sensor::setup()
 {
   int code = 0;
   recordmode = RECORD_TYPE;
+
+  code = this->init_watchdog();
+  if (code != 0)
+    this->panic("watchdog initialization failed", code);
+
   code = this->init_serial();
   if (code != 0)
     this->panic("serial initialization failed", code);
@@ -169,10 +178,6 @@ int Sensor::setup()
   if (code != 0)
     this->panic("audio initialization failed", code);
     
-
-  code = this->init_watchdog();
-  if (code != 0)
-    this->panic("watchdog initialization failed", code);
 
   return 0;
 }
@@ -534,7 +539,10 @@ int Sensor::init_watchdog()
 int Sensor::init_serial()
 {
   Serial.begin(CONFIG_SERIAL_BAUD);
-
+   while(!Serial.dtr())
+  {
+    Serial.println("stuck");
+  }
   this->log("[+] initialized serial\n");
 
   return 0;
@@ -553,7 +561,10 @@ int Sensor::init_audio()
   {
     return -1;
   }
-
+  #ifdef SINE_WAVE_TEST
+  sine1.amplitude(0.8);
+  sine1.frequency(4000);
+  #endif
   // Enable differential mode
   // m_audio_control.adcDifferentialMode();
   m_audio_control.adcSingleEndedMode();
@@ -591,5 +602,5 @@ void Sensor::log(const char *fmt, ...) const
   va_end(args);
 
   // Dump the string over serial
-  Serial.print(buffer);
+  // Serial.print(buffer);
 }

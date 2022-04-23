@@ -135,6 +135,8 @@ private:
 private:
   WDT_T4<WDT1> m_watchdog;
   AudioInputTDM m_tdm;
+  AudioSynthWaveformSine sine1;
+  
   AudioRecordQueue m_audio_queue[CONFIG_CHANNEL_COUNT];
   AudioConnection m_audio_patch[CONFIG_CHANNEL_COUNT];
   uint8_t m_audio_data[CONFIG_CHANNEL_COUNT][4096];
