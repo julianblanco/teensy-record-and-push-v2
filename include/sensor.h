@@ -147,6 +147,7 @@ private:
   unsigned long m_next_recording;
   unsigned long m_first_recording;
   unsigned int recordmode;
+
   struct send_audio_data{
     uint16_t size_of_packet_including_header;
     uint8_t magic;
@@ -156,6 +157,7 @@ private:
     uint8_t sequence_number;
     uint8_t samples[WRITE_BLOCK_SIZE];
   };
+  
   static_assert(8==offsetof(struct send_audio_data,samples ), "struct problem");
 send_audio_data audio_data_frame;
 #if ! CONFIG_DISABLE_NETWORK

@@ -61,7 +61,7 @@
 // Whether to use Ethernet/FTP
 #define CONFIG_DISABLE_NETWORK 1
 
-#define WRITE_BLOCK_SIZE 3840
+#define WRITE_BLOCK_SIZE 4096
 
 #if CONFIG_SD_USE_SDIO
 // FIFO is faster than DMA according to documentation

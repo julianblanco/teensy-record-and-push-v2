@@ -21,6 +21,8 @@ void Sensor::run()
   // audio sampling queues.
   this->start_sample(recording_dir, 256, data_file);
   this->log("[+] Start\n");
+  u_int16_t usbwrites =0;
+
   while (1)
   {
     m_watchdog.feed();
@@ -40,8 +42,9 @@ void Sensor::run()
 
       // Check if data is available
       if (!m_audio_queue[ch].available())
+      {
         continue;
-
+      }
       // Read the data and update counters
       memcpy(&m_audio_data[ch][m_audio_offset[ch]], m_audio_queue[ch].readBuffer(), 256);
       m_audio_queue[ch].freeBuffer();
@@ -50,7 +53,7 @@ void Sensor::run()
 
       // Is a block ready to flush?
       if (m_audio_offset[ch] < WRITE_BLOCK_SIZE)
-        continue;
+      {continue;}
 
       // Flush block to disk
 
@@ -64,14 +67,20 @@ void Sensor::run()
         // Serial.println(micros());
         if(!Serial.dtr())
         {while(1);}//nukes system when recorder no longer reading via usb
-        audio_data_frame.sequence_number = m_samples_collected[ch];
+
+        audio_data_frame.sequence_number = usbwrites;
         audio_data_frame.channels = ch;
         memcpy(audio_data_frame.samples,m_audio_data[ch],WRITE_BLOCK_SIZE );
         Serial.write((u_int8_t*)&audio_data_frame,sizeof(audio_data_frame));
-        
+        usbwrites+=1;
+        if (usbwrites>255)
+        {usbwrites=0;}
+
+
       }
       // Reset counter
       m_audio_offset[ch] = 0;
+      
     }
     // Are all channels done?
     if (done == CONFIG_CHANNEL_COUNT)
@@ -541,7 +550,7 @@ int Sensor::init_serial()
   Serial.begin(CONFIG_SERIAL_BAUD);
    while(!Serial.dtr())
   {
-    Serial.println("stuck");
+    // Serial.println("stuck");
   }
   this->log("[+] initialized serial\n");
 
@@ -575,6 +584,7 @@ int Sensor::init_audio()
   m_audio_control.inputLevel(15.85);
 
   delay(1000);
+  audio_data_frame.size_of_packet_including_header = 8 + WRITE_BLOCK_SIZE;
   audio_data_frame.channels = CONFIG_CHANNEL_COUNT;
   audio_data_frame.flags =0; //0x00
   audio_data_frame.magic = 65;//0x41
