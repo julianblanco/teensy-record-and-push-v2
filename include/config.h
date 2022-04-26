@@ -8,7 +8,7 @@
 #define MAGICBYTES ((const char[]){0x01, 0x02, 0x41, 0x00, 0x00, 0x0, 0x07, 0x08})
 #define MAGICBYTESLEN 8
 // Number of audio channels to record
-#define CONFIG_CHANNEL_COUNT 1
+#define CONFIG_CHANNEL_COUNT 4
 // Name of the directory to store an individual recording; formatted with a single integer
 #define CONFIG_RECORDING_DIRECTORY "/rec%d"
 // Path to an individual channel recording including the recording index and the channel index
@@ -61,7 +61,7 @@
 // Whether to use Ethernet/FTP
 #define CONFIG_DISABLE_NETWORK 1
 
-#define WRITE_BLOCK_SIZE 4096
+#define WRITE_BLOCK_SIZE 512
 
 #if CONFIG_SD_USE_SDIO
 // FIFO is faster than DMA according to documentation

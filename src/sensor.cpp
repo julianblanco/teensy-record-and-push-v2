@@ -21,7 +21,7 @@ void Sensor::run()
   // audio sampling queues.
   this->start_sample(recording_dir, 256, data_file);
   this->log("[+] Start\n");
-  u_int16_t usbwrites =0;
+  uint8_t usbwrites = 0;
 
   while (1)
   {
@@ -29,7 +29,7 @@ void Sensor::run()
 
     // Reset done counter
     done = 0;
-    
+
     // Sample all channels and write to disk
     for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++)
     {
@@ -53,35 +53,56 @@ void Sensor::run()
 
       // Is a block ready to flush?
       if (m_audio_offset[ch] < WRITE_BLOCK_SIZE)
-      {continue;}
+      {
+        continue;
+      }
+    }
 
-      // Flush block to disk
+#ifdef USBrecord
+    if (!Serial.dtr())
+    {
+#ifdef TEENSYDUINO
+      /* request a system reset */
+      asm volatile("dsb");
+      SCB_AIRCR = 0x05FA0004;
+      asm volatile("dsb");
+      /* loop until it takes effect */
+      while (1)
+        ;
+#else
+      NVIC_SystemReset();
+#endif
+#endif
+    } // nukes system when recorder no longer reading via usb
 
-      if (recordmode == SDrecord) data_file[ch].write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
-      if (recordmode == USBrecord) 
-      { //write123456,then channel number, then blocksize
-        // Serial.println(micros()); 
+    // Flush block to disk
+    for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++)
+    {
+      if (recordmode == SDrecord)
+        data_file[ch].write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
+      if (recordmode == USBrecord)
+      { // write123456,then channel number, then blocksize
+        // Serial.println(micros());
         // Serial.write(MAGICBYTES,MAGICBYTESLEN);
         // Serial.write((char)ch);
         // Serial.write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
         // Serial.println(micros());
-        if(!Serial.dtr())
-        {while(1);}//nukes system when recorder no longer reading via usb
 
-        audio_data_frame.sequence_number = usbwrites;
-        audio_data_frame.channels = ch;
-        memcpy(audio_data_frame.samples,m_audio_data[ch],WRITE_BLOCK_SIZE );
-        Serial.write((u_int8_t*)&audio_data_frame,sizeof(audio_data_frame));
-        usbwrites+=1;
-        if (usbwrites>255)
-        {usbwrites=0;}
-
-
+        memcpy(&audio_data_frame.samples[ch * WRITE_BLOCK_SIZE], m_audio_data[ch], WRITE_BLOCK_SIZE);
       }
-      // Reset counter
       m_audio_offset[ch] = 0;
-      
     }
+      audio_data_frame.sequence_number = usbwrites;
+      Serial.write((u_int8_t *)&audio_data_frame, sizeof(audio_data_frame));
+
+      usbwrites = usbwrites+ (uint8_t)1;
+      if (usbwrites > 255)
+      {
+        usbwrites = 0;
+      }
+
+      
+    
     // Are all channels done?
     if (done == CONFIG_CHANNEL_COUNT)
     {
@@ -98,7 +119,11 @@ void Sensor::run()
           // Write any non-4096-aligned data
           if (m_audio_offset[ch] != 0)
           {
-            data_file[ch].write(m_audio_data[ch], m_audio_offset[ch]);
+            // data_file[ch].write(m_audio_data[ch], m_audio_offset[ch]);
+            // audio_data_frame.sequence_number = usbwrites;
+            audio_data_frame.channels = ch;
+            memcpy(audio_data_frame.samples, m_audio_data[ch], WRITE_BLOCK_SIZE);
+            Serial.write((u_int8_t *)&audio_data_frame, sizeof(audio_data_frame));
           }
 
           // Close the file
@@ -118,10 +143,10 @@ void Sensor::run()
           // Write any non-4096-aligned data
           if (m_audio_offset[ch] != 0)
           {
-                    Serial.write(MAGICBYTES,MAGICBYTESLEN);
-                    Serial.write((char)ch);
-                    Serial.write(m_audio_data[ch], m_audio_offset[ch]);
-                    //[TODO] fix this ie i need to either send bytes or hard code on recv
+            Serial.write(MAGICBYTES, MAGICBYTESLEN);
+            Serial.write((char)ch);
+            Serial.write(m_audio_data[ch], m_audio_offset[ch]);
+            //[TODO] fix this ie i need to either send bytes or hard code on recv
           }
 
           // Close the file
@@ -130,7 +155,6 @@ void Sensor::run()
 
         // Stop the sampling process and flush queues
         this->stop_sample(recording_dir);
-
       }
       unsigned long ellapsed = millis() - time_stopped;
       this->log("[+] cycle complete after %dms\n", ellapsed);
@@ -168,7 +192,7 @@ int Sensor::setup()
     this->panic("serial initialization failed", code);
 
   this->log("[-] waiting five seconds for startup sequence...\n");
-  delay(5000);
+  delay(1000);
 
   if (recordmode == SDrecord)
   {
@@ -186,7 +210,6 @@ int Sensor::setup()
   code = this->init_audio();
   if (code != 0)
     this->panic("audio initialization failed", code);
-    
 
   return 0;
 }
@@ -307,7 +330,7 @@ void Sensor::start_sample(char *recording_dir, size_t length, CONFIG_SD_FILE *da
     }
   }
   if (recordmode == USBrecord)
-  { 
+  {
     // Initialize separately so they happen as close to the same time as possible
     for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++)
     {
@@ -548,7 +571,7 @@ int Sensor::init_watchdog()
 int Sensor::init_serial()
 {
   Serial.begin(CONFIG_SERIAL_BAUD);
-   while(!Serial.dtr())
+  while (!Serial.dtr())
   {
     // Serial.println("stuck");
   }
@@ -570,10 +593,10 @@ int Sensor::init_audio()
   {
     return -1;
   }
-  #ifdef SINE_WAVE_TEST
+#ifdef SINE_WAVE_TEST
   sine1.amplitude(0.8);
   sine1.frequency(4000);
-  #endif
+#endif
   // Enable differential mode
   // m_audio_control.adcDifferentialMode();
   m_audio_control.adcSingleEndedMode();
@@ -584,11 +607,12 @@ int Sensor::init_audio()
   m_audio_control.inputLevel(15.85);
 
   delay(1000);
-  audio_data_frame.size_of_packet_including_header = 8 + WRITE_BLOCK_SIZE;
+  audio_data_frame.magic = 65; // 0x41
+  audio_data_frame.flags = 0;  // 0x00
   audio_data_frame.channels = CONFIG_CHANNEL_COUNT;
-  audio_data_frame.flags =0; //0x00
-  audio_data_frame.magic = 65;//0x41
+  audio_data_frame.samples_per_channel = 512 / (2);
 
+  audio_data_frame.size_of_packet_including_header = 2048 + WRITE_BLOCK_SIZE;
 
   this->log("[+] initialized audio controller\n");
 
