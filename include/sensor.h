@@ -136,7 +136,9 @@ private:
   WDT_T4<WDT1> m_watchdog;
   AudioInputTDM m_tdm;
   AudioSynthWaveformSine sine1;
-  
+AudioSynthWaveformSine sine2;
+AudioSynthWaveformSine sine3;  
+AudioSynthWaveformSine sine4;
   AudioRecordQueue m_audio_queue[CONFIG_CHANNEL_COUNT];
   AudioConnection m_audio_patch[CONFIG_CHANNEL_COUNT];
   uint8_t m_audio_data[CONFIG_CHANNEL_COUNT][4096];
@@ -155,7 +157,7 @@ private:
     uint16_t samples_per_channel;
     uint8_t channels;
     uint8_t sequence_number;
-    uint8_t samples[2048];
+    uint8_t samples[1024];
   };
   
   static_assert(8==offsetof(struct send_audio_data,samples ), "struct problem");

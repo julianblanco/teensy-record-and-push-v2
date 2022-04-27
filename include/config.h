@@ -4,9 +4,7 @@
 #ifndef _SENSOR_CONFIG_H_
 #define _SENSOR_CONFIG_H_
 // #define SINE_WAVE_TEST 1
-// magicbytes for serial parse
-#define MAGICBYTES ((const char[]){0x01, 0x02, 0x41, 0x00, 0x00, 0x0, 0x07, 0x08})
-#define MAGICBYTESLEN 8
+
 // Number of audio channels to record
 #define CONFIG_CHANNEL_COUNT 4
 // Name of the directory to store an individual recording; formatted with a single integer
@@ -61,7 +59,7 @@
 // Whether to use Ethernet/FTP
 #define CONFIG_DISABLE_NETWORK 1
 
-#define WRITE_BLOCK_SIZE 512
+#define WRITE_BLOCK_SIZE 256
 
 #if CONFIG_SD_USE_SDIO
 // FIFO is faster than DMA according to documentation
@@ -113,32 +111,39 @@
 #error watchdog reset timeout must be greater than warning timeout
 #endif
 #ifdef SINE_WAVE_TEST
-
+#if CONFIG_CHANNEL_COUNT == 1
 #define CONFIG_AUDIO_PATCH_INIT AudioConnection(sine1, 0, m_audio_queue[0], 0)
+#elif CONFIG_CHANNEL_COUNT == 4
+#define CONFIG_AUDIO_PATCH_INIT                       \
+  AudioConnection(sine1, 0, m_audio_queue[0], 0),     \
+      AudioConnection(sine2, 0, m_audio_queue[1], 0), \
+      AudioConnection(sine3, 0, m_audio_queue[2], 0), \
+      AudioConnection(sine4, 0, m_audio_queue[3], 0)
+#endif
 #else
-  #if CONFIG_CHANNEL_COUNT == 1
-  #define CONFIG_AUDIO_PATCH_INIT AudioConnection(m_tdm, 0, m_audio_queue[0], 0)
-  #elif CONFIG_CHANNEL_COUNT == 2
-  #define CONFIG_AUDIO_PATCH_INIT                   \
-    AudioConnection(m_tdm, 0, m_audio_queue[0], 0), \
-        AudioConnection(m_tdm, 2, m_audio_queue[1], 0)
-  #elif CONFIG_CHANNEL_COUNT == 4
-  #define CONFIG_AUDIO_PATCH_INIT                       \
-    AudioConnection(m_tdm, 0, m_audio_queue[0], 0),     \
-        AudioConnection(m_tdm, 2, m_audio_queue[1], 0), \
-        AudioConnection(m_tdm, 4, m_audio_queue[2], 0), \
-        AudioConnection(m_tdm, 6, m_audio_queue[3], 0)
-  #elif CONFIG_CHANNEL_COUNT == 6
-  #define CONFIG_AUDIO_PATCH_INIT                       \
-    AudioConnection(m_tdm, 0, m_audio_queue[0], 0),     \
-        AudioConnection(m_tdm, 2, m_audio_queue[1], 0), \
-        AudioConnection(m_tdm, 4, m_audio_queue[2], 0), \
-        AudioConnection(m_tdm, 6, m_audio_queue[3], 0), \
-        AudioConnection(m_tdm, 8, m_audio_queue[4], 0), \
-        AudioConnection(m_tdm, 10, m_audio_queue[5], 0)
-  #else
-  #error "invalid channel count (expected one of [1,2,4,6])"
-  #endif
+#if CONFIG_CHANNEL_COUNT == 1
+#define CONFIG_AUDIO_PATCH_INIT AudioConnection(m_tdm, 0, m_audio_queue[0], 0)
+#elif CONFIG_CHANNEL_COUNT == 2
+#define CONFIG_AUDIO_PATCH_INIT                   \
+  AudioConnection(m_tdm, 0, m_audio_queue[0], 0), \
+      AudioConnection(m_tdm, 2, m_audio_queue[1], 0)
+#elif CONFIG_CHANNEL_COUNT == 4
+#define CONFIG_AUDIO_PATCH_INIT                       \
+  AudioConnection(m_tdm, 0, m_audio_queue[0], 0),     \
+      AudioConnection(m_tdm, 2, m_audio_queue[1], 0), \
+      AudioConnection(m_tdm, 4, m_audio_queue[2], 0), \
+      AudioConnection(m_tdm, 6, m_audio_queue[3], 0)
+#elif CONFIG_CHANNEL_COUNT == 6
+#define CONFIG_AUDIO_PATCH_INIT                       \
+  AudioConnection(m_tdm, 0, m_audio_queue[0], 0),     \
+      AudioConnection(m_tdm, 2, m_audio_queue[1], 0), \
+      AudioConnection(m_tdm, 4, m_audio_queue[2], 0), \
+      AudioConnection(m_tdm, 6, m_audio_queue[3], 0), \
+      AudioConnection(m_tdm, 8, m_audio_queue[4], 0), \
+      AudioConnection(m_tdm, 10, m_audio_queue[5], 0)
+#else
+#error "invalid channel count (expected one of [1,2,4,6])"
+#endif
 #endif
 
 // Number of samples to collect to meet recording length (floor'd)
