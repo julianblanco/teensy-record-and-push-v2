@@ -143,7 +143,7 @@ AudioSynthWaveformSine sine3;
 AudioSynthWaveformSine sine4;
   AudioRecordQueue m_audio_queue[CONFIG_CHANNEL_COUNT];
   AudioConnection m_audio_patch[CONFIG_CHANNEL_COUNT];
-  uint8_t m_audio_data[CONFIG_CHANNEL_COUNT][WRITE_BLOCK_SIZE];
+  uint8_t m_audio_data[CONFIG_CHANNEL_COUNT][4096];
   uint8_t m_samples_collected[CONFIG_CHANNEL_COUNT];//number of 128 byte samples we have read
   uint16_t m_audio_offset[CONFIG_CHANNEL_COUNT];
   AudioControlCS42448 m_audio_control;
@@ -159,7 +159,7 @@ AudioSynthWaveformSine sine4;
     uint16_t samples_per_channel;
     uint8_t channels;
     uint8_t sequence_number;
-    uint8_t samples[BUFFER_SIZE];
+    uint16_t samples[BUFFER_SIZE];
   };
   
   static_assert(8==offsetof(struct send_audio_data,samples ), "struct problem");
