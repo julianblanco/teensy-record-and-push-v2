@@ -3,7 +3,7 @@
  */
 #ifndef _SENSOR_CONFIG_H_
 #define _SENSOR_CONFIG_H_
-// #define SINE_WAVE_TEST 1
+#define SINE_WAVE_TEST 1
 
 // Number of audio channels to record
 #define CONFIG_CHANNEL_COUNT 4
@@ -53,13 +53,14 @@
 #define CONFIG_FTP_USER "ftpuser"
 #define CONFIG_FTP_PASSWORD "just4munk"
 // Size of the audio queue buffer
-#define CONFIG_AUDIO_BUFFER_SIZE 256
+#define CONFIG_AUDIO_BUFFER_SIZE WRITE_BLOCK_SIZE
 // Roll off old recordings when SD card is full
 #define CONFIG_SD_CARD_ROLLOFF 0
 // Whether to use Ethernet/FTP
 #define CONFIG_DISABLE_NETWORK 1
 
-#define WRITE_BLOCK_SIZE 256
+#define WRITE_BLOCK_SIZE 512
+#define BUFFER_SIZE WRITE_BLOCK_SIZE * CONFIG_CHANNEL_COUNT
 
 #if CONFIG_SD_USE_SDIO
 // FIFO is faster than DMA according to documentation

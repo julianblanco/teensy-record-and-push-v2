@@ -29,8 +29,12 @@ void Sensor::run()
 
     // Reset done counter
     done = 0;
-
+    int chan1flag=0;
+    int chan2flag=0;
+    int chan3flag=0;
+    int chan4flag=0;
     // Sample all channels and write to disk
+    for (int idx = 0; idx <2;idx++){
     for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++)
     {
       // // Check if sampling is complete for this channel
@@ -52,11 +56,24 @@ void Sensor::run()
       m_audio_offset[ch] += 256;
       m_samples_collected[ch] += 1;
 
-      // Is a block ready to flush?
-      if (m_audio_offset[ch] < WRITE_BLOCK_SIZE)
-      {
-        continue;
-      }
+      // // Is a block ready to flush?
+      // if (m_audio_offset[ch] < WRITE_BLOCK_SIZE)
+      // {
+      //   if(ch==1) chan1flag=1;
+      //   if(ch==2) chan2flag=1;
+      //   if(ch==3) chan3flag=1;
+      //   if(ch==4) chan4flag=1;
+
+      //   if(chan1flag && chan2flag &&chan3flag&&chan4flag)
+      //   {
+      //     chan1flag=0;
+      //     chan2flag=0;
+      //     chan3flag=0;
+      //     chan4flag=0;
+      //   continue;
+      //   }
+      // }
+    }
     }
 
 #ifdef USBrecord
@@ -92,9 +109,13 @@ void Sensor::run()
         memcpy(&audio_data_frame.samples[ch * WRITE_BLOCK_SIZE], m_audio_data[ch], WRITE_BLOCK_SIZE);
       }
       m_audio_offset[ch] = 0;
+      
     }
     audio_data_frame.sequence_number = usbwrites;
-    Serial.write((u_int8_t *)&audio_data_frame, sizeof(audio_data_frame));
+    // Serial.write((u_int8_t *)&audio_data_frame, sizeof(audio_data_frame));
+    unsigned char escaped_frame[ 2 * sizeof(audio_data_frame) + 1]; 
+    size_t escaped_frame_size =  escape_packet(&escaped_frame, &audio_data_frame, sizeof(audio_data_frame)); 
+    Serial.write(escaped_frame, escaped_frame_size);
 
     usbwrites = usbwrites + (uint8_t)1;
     if (usbwrites > 255)
@@ -594,13 +615,13 @@ int Sensor::init_audio()
   }
 #ifdef SINE_WAVE_TEST
   sine1.amplitude(0.8);
-  sine1.frequency(4000);
+  sine1.frequency(900);
   sine2.amplitude(0.8);
-  sine2.frequency(5000);
+  sine2.frequency(1000);
   sine3.amplitude(0.8);
-  sine3.frequency(6000);
+  sine3.frequency(1100);
   sine4.amplitude(0.8);
-  sine4.frequency(7000);
+  sine4.frequency(1200);
 
 #endif
   // Enable differential mode
@@ -616,7 +637,7 @@ int Sensor::init_audio()
   audio_data_frame.magic = 65; // 0x41
   audio_data_frame.flags = 0;  // 0x00
   audio_data_frame.channels = CONFIG_CHANNEL_COUNT;
-  audio_data_frame.samples_per_channel = 128;
+  audio_data_frame.samples_per_channel = 256;
 
   audio_data_frame.size_of_packet_including_header = 8 + WRITE_BLOCK_SIZE*CONFIG_CHANNEL_COUNT;
 
@@ -644,3 +665,4 @@ void Sensor::log(const char *fmt, ...) const
   // Dump the string over serial
   // Serial.print(buffer);
 }
+
