@@ -47,7 +47,7 @@ void Sensor::run()
       // Check if data is available
       while (!m_audio_queue[ch].available())
       {
-        continue;
+        
       }
       // Read the data and update counters
       done += 1;
@@ -111,17 +111,13 @@ void Sensor::run()
       m_audio_offset[ch] = 0;
       
     }
-    audio_data_frame.sequence_number = usbwrites;
+    audio_data_frame.sequence_number = usbwrites++;
     // Serial.write((u_int8_t *)&audio_data_frame, sizeof(audio_data_frame));
     unsigned char escaped_frame[ 2 * sizeof(audio_data_frame) + 1]; 
     size_t escaped_frame_size =  escape_packet(&escaped_frame, &audio_data_frame, sizeof(audio_data_frame)); 
     Serial.write(escaped_frame, escaped_frame_size);
 
-    usbwrites = usbwrites + (uint8_t)1;
-    if (usbwrites > 255)
-    {
-      usbwrites = 0;
-    }
+ 
 
     // // Are all channels done?
     // if (done == CONFIG_CHANNEL_COUNT)

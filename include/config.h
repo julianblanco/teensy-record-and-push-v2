@@ -3,7 +3,7 @@
  */
 #ifndef _SENSOR_CONFIG_H_
 #define _SENSOR_CONFIG_H_
-#define SINE_WAVE_TEST 1
+// #define SINE_WAVE_TEST 1
 
 // Number of audio channels to record
 #define CONFIG_CHANNEL_COUNT 4
