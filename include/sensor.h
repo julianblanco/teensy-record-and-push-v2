@@ -159,7 +159,7 @@ AudioSynthWaveformSine sine4;
     uint16_t samples_per_channel;
     uint8_t channels;
     uint8_t sequence_number;
-    uint16_t samples[BUFFER_SIZE];
+    uint8_t samples[BUFFER_SIZE];
   };
   
   static_assert(8==offsetof(struct send_audio_data,samples ), "struct problem");

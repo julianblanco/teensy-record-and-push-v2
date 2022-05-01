@@ -60,7 +60,7 @@
 #define CONFIG_DISABLE_NETWORK 1
 
 #define WRITE_BLOCK_SIZE 512
-#define BUFFER_SIZE WRITE_BLOCK_SIZE * CONFIG_CHANNEL_COUNT
+#define BUFFER_SIZE 2048
 
 #if CONFIG_SD_USE_SDIO
 // FIFO is faster than DMA according to documentation

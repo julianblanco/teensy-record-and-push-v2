@@ -34,8 +34,7 @@ void Sensor::run()
     int chan3flag = 0;
     int chan4flag = 0;
     // Sample all channels and write to disk
-    for (int idx = 0; idx < 2; idx++)
-    {
+
       for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++)
       {
         // // Check if sampling is complete for this channel
@@ -48,37 +47,36 @@ void Sensor::run()
         // Check if data is available
         while (!m_audio_queue[ch].available())
         {
-          
         }
         // Read the data and update counters
         done += 1;
-        memcpy(&m_audio_data[ch][m_audio_offset[ch]], m_audio_queue[ch].readBuffer(), 256);
+        memcpy(&m_audio_data[ch][m_audio_offset[ch]], m_audio_queue[ch].readBuffer(), WRITE_BLOCK_SIZE);
         m_audio_queue[ch].freeBuffer();
-        m_audio_offset[ch] += 256;
+        m_audio_offset[ch] += WRITE_BLOCK_SIZE;
         m_samples_collected[ch] += 1;
 
-        // // Is a block ready to flush?
-        if (m_audio_offset[ch] >= WRITE_BLOCK_SIZE)
-        {
-          if (ch == 1)
-            chan1flag = 1;
-          if (ch == 2)
-            chan2flag = 1;
-          if (ch == 3)
-            chan3flag = 1;
-          if (ch == 4)
-            chan4flag = 1;
+        // // // Is a block ready to flush?
+        // if (m_audio_offset[ch] < WRITE_BLOCK_SIZE)
+        // {
+        //   if (ch == 1)
+        //     chan1flag = 1;
+        //   if (ch == 2)
+        //     chan2flag = 1;
+        //   if (ch == 3)
+        //     chan3flag = 1;
+        //   if (ch == 4)
+        //     chan4flag = 1;
 
-          if (chan1flag && chan2flag && chan3flag && chan4flag)
-          {
-            chan1flag = 0;
-            chan2flag = 0;
-            chan3flag = 0;
-            chan4flag = 0;
-            continue;
-          }
-        }
-      }
+        //   if (chan1flag && chan2flag && chan3flag && chan4flag)
+        //   {
+        //     chan1flag = 0;
+        //     chan2flag = 0;
+        //     chan3flag = 0;
+        //     chan4flag = 0;
+        //     brea;
+        //   }
+        // }
+      
     }
 
 #ifdef USBrecord
@@ -101,8 +99,7 @@ void Sensor::run()
     // Flush block to disk
     for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++)
     {
-      if (recordmode == SDrecord)
-        data_file[ch].write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
+
       if (recordmode == USBrecord)
       {
         // Serial.write(&m_audio_data[ch][0], WRITE_BLOCK_SIZE);
@@ -116,79 +113,6 @@ void Sensor::run()
     unsigned char escaped_frame[2 * sizeof(audio_data_frame) + 1];
     size_t escaped_frame_size = escape_packet(&escaped_frame, &audio_data_frame, sizeof(audio_data_frame));
     Serial.write(escaped_frame, escaped_frame_size);
-
- 
-
-    // // Are all channels done?
-    // if (done == CONFIG_CHANNEL_COUNT)
-    // {
-
-    //   // Record the time we should have stopped, since upload may take a couple seconds
-    //   // if network latency is high.
-    //   time_stopped = millis();
-    //   if (recordmode == SDrecord)
-    //   {
-    //     // Close files; we are done writing
-    //     for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ++ch)
-    //     {
-
-    //       // Write any non-4096-aligned data
-    //       if (m_audio_offset[ch] != 0)
-    //       {
-    //         // data_file[ch].write(m_audio_data[ch], m_audio_offset[ch]);
-    //         // audio_data_frame.sequence_number = usbwrites;
-    //         audio_data_frame.channels = ch;
-    //         memcpy(audio_data_frame.samples, m_audio_data[ch], WRITE_BLOCK_SIZE);
-    //         Serial.write((u_int8_t *)&audio_data_frame, sizeof(audio_data_frame));
-    //       }
-
-    //       // Close the file
-    //       data_file[ch].close();
-    //     }
-
-    //     // Stop the sampling process and flush queues
-    //     this->stop_sample(recording_dir);
-    //   }
-    //   if (recordmode == USBrecord)
-    //   {
-
-    //     // Close files; we are done writing
-    //     for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ++ch)
-    //     {
-
-    //       // Write any non-4096-aligned data
-    //       if (m_audio_offset[ch] != 0)
-    //       {
-    //         // Serial.write(MAGICBYTES, MAGICBYTESLEN);
-    //         Serial.write((char)ch);
-    //         Serial.write(m_audio_data[ch], m_audio_offset[ch]);
-    //         //[TODO] fix this ie i need to either send bytes or hard code on recv
-    //       }
-
-    //       // Close the file
-    //       data_file[ch].close();
-    //     }
-
-    //     // Stop the sampling process and flush queues
-    //     this->stop_sample(recording_dir);
-    //   }
-    //   unsigned long ellapsed = millis() - time_stopped;
-    //   this->log("[+] cycle complete after %dms\n", ellapsed);
-
-    //   // Sleep for the remaining hold time
-    //   if (ellapsed < CONFIG_HOLD_LENGTH)
-    //   {
-    //     this->log("[+] sleep for %dms\n", CONFIG_HOLD_LENGTH - ellapsed);
-    //     delay(CONFIG_HOLD_LENGTH - ellapsed);
-    //   }
-    //   else
-    //   {
-    //     this->log("[+] foregoing sleep due to lengthy upload\n");
-    //   }
-
-    //   // Restart recording
-    //   this->start_sample(recording_dir, 256, data_file);
-    // }
 
   } // end while 1
 
