@@ -488,8 +488,8 @@ int Sensor::init_watchdog()
 int Sensor::init_serial()
 {
 
-  #include "imxrt.h"
-  USB1_PORTSC1 |= USB_PORTSC1_PFSC;//forece 12Mbit/s
+  // #include "imxrt.h"
+  // USB1_PORTSC1 |= USB_PORTSC1_PFSC;//forece 12Mbit/s
   Serial.begin(CONFIG_SERIAL_BAUD);
   while (!Serial.dtr())
   {
