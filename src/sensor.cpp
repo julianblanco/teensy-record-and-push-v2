@@ -209,7 +209,7 @@ int Sensor::setup()
 
   if (recordmode == SDrecord)
   {
-    code = this->init_sdcard();
+    // code = this->init_sdcard();
     if (code != 0)
       this->panic("sdcard initialization failed", code);
   }
@@ -310,38 +310,7 @@ int Sensor::generate_new_dir(char *recording_dir, size_t length)
 void Sensor::start_sample(char *recording_dir, size_t length, CONFIG_SD_FILE *data_file)
 {
   char channel_path[256];
-  if (recordmode == SDrecord)
-  {
-    // Generate a new recording directory
-    if (this->generate_new_dir(recording_dir, 256) != 0)
-    {
-      this->panic("recording path buffer overflow (clean out sd card?)", -1);
-    }
 
-    this->log("[+] beginning recording period for: %s\n", recording_dir);
-
-    // Visual indicator of sampling period
-    digitalWrite(CONFIG_LED, HIGH);
-
-    // Initialize separately so they happen as close to the same time as possible
-    for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++)
-    {
-      m_audio_queue[ch].begin();
-    }
-
-    // Open each channel file
-    for (int ch = 0; ch < CONFIG_CHANNEL_COUNT; ch++)
-    {
-      // Open the channel output file
-      snprintf(channel_path, 256, CONFIG_CHANNEL_PATH, recording_dir, ch);
-      if (!data_file[ch].open(channel_path, FILE_WRITE))
-      {
-        this->panic("failed to open channel file", -1);
-      }
-      m_audio_offset[ch] = 0;
-      m_samples_collected[ch] = 0;
-    }
-  }
   if (recordmode == USBrecord)
   {
     // Initialize separately so they happen as close to the same time as possible
@@ -488,71 +457,6 @@ int Sensor::init_ethernet()
 
 #endif
 
-int Sensor::init_sdcard()
-{
-  const char *const animation = "\\|/-";
-  int frame = 0;
-
-  // Wait for an SD card to be inserted
-  this->log("[-] waiting for sd card insertion...");
-  while (!m_sd.begin(CONFIG_SD))
-  {
-    // Silly, but erases previous message, allows us to give a lil spinny-boi
-    this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-    this->log("[%c] waiting for sd card insertion...", animation[frame]);
-    frame = (frame + 1) % 4;
-    delay(1000);
-  }
-
-  // Again, silly, but I like it, okay?
-  this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-  this->log("                                    ");
-  this->log("\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b");
-  this->log("[+] initialized sd card\n");
-
-  // We track the recording file. If drop off is disabled, then this never changes.
-  if (m_sd.exists("/first_recording"))
-  {
-    char buffer[64];
-    CONFIG_SD_FILE file = m_sd.open("/first_recording", O_RDONLY);
-    file.read(buffer, 64);
-    file.close();
-
-    m_first_recording = atoi(buffer);
-  }
-  else
-  {
-    m_first_recording = 0;
-    // Touch the marker file
-    CONFIG_SD_FILE file = m_sd.open("/first_recording", O_WRONLY | O_CREAT);
-    file.write("0\n", 2);
-    file.close();
-  }
-
-  // This is updated after every recording, and helps start up times when the SD card
-  // has a lot of recordings (e.g. >1k).
-  if (m_sd.exists("/next_recording"))
-  {
-    char buffer[64];
-    CONFIG_SD_FILE file = m_sd.open("/next_recording", O_RDONLY);
-    file.read(buffer, 64);
-    file.close();
-
-    m_next_recording = atoi(buffer);
-  }
-  else
-  {
-    m_next_recording = 0;
-    CONFIG_SD_FILE file = m_sd.open("/next_recording", O_WRONLY | O_CREAT);
-    file.write("0\n", 2);
-    file.close();
-  }
-
-  this->log("[+] first saved recording: %ld\n", m_first_recording);
-  this->log("[+] next recording slot: %ld\n", m_next_recording);
-
-  return 0;
-}
 
 /**
  * This function is called for the warning message. It has no access to the sensor
@@ -583,6 +487,9 @@ int Sensor::init_watchdog()
 
 int Sensor::init_serial()
 {
+
+  #include "imxrt.h"
+  USB1_PORTSC1 |= USB_PORTSC1_PFSC;//forece 12Mbit/s
   Serial.begin(CONFIG_SERIAL_BAUD);
   while (!Serial.dtr())
   {
