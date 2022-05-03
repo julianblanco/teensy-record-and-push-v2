@@ -492,7 +492,8 @@ int Sensor::init_serial()
   // USB1_PORTSC1 |= USB_PORTSC1_PFSC;//forece 12Mbit/s
   Serial.begin(CONFIG_SERIAL_BAUD);
   while (!Serial.dtr())
-  {
+  {m_watchdog.feed();
+    
     // Serial.println("stuck");
   }
   this->log("[+] initialized serial\n");
